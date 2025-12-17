@@ -7,9 +7,16 @@ FlowDeck CLI provides powerful build and run capabilities optimized for command-
 
 ## Building Your App
 
+<Tip>
+  Use the --config option to pass a set of pre-defined parameters\
+  \
+  To generate a Configuration file, use the 'W' option in FlowDeck interactive mode
+</Tip>
+
 ### Basic Build
 
 ```bash
+# Stateless buid
 flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 ```
 
@@ -18,6 +25,7 @@ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 Use `--simulator none` for macOS targets:
 
 ```bash
+# Stateless buid
 flowdeck build --workspace MyApp.xcworkspace --simulator none
 ```
 
@@ -50,6 +58,7 @@ flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
 ```
 
 This command:
+
 1. Builds the app
 2. Opens Simulator.app (if iOS)
 3. Boots the simulator (or uses already running)
@@ -130,6 +139,7 @@ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 ## Performance Optimization
 
 FlowDeck CLI automatically:
+
 - Detects CPU core count for parallel builds
 - Uses optimized build settings
 - Enables incremental compilation
