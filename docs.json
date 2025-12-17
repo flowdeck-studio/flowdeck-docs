@@ -73,6 +73,12 @@
               "extension/tasks-json",
               "extension/launch-json"
             ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "extension/support"
+            ]
           }
         ]
       },
@@ -113,6 +119,12 @@
               "cli/commands/device",
               "cli/commands/apps",
               "cli/commands/system"
+            ]
+          },
+          {
+            "group": "Support",
+            "pages": [
+              "cli/support"
             ]
           }
         ]
