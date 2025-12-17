@@ -1,0 +1,143 @@
+---
+title: "Installation"
+description: "Install FlowDeck CLI on your Mac"
+---
+
+FlowDeck CLI is available for macOS and can be installed with a single command.
+
+## Prerequisites
+
+Before installing FlowDeck CLI, ensure you have:
+
+<Steps>
+  <Step title="Recent macOS running on an Apple Silicon or Intel Mac">
+    <Warning>
+      Windows and Linux are not supported.
+    </Warning>
+    - macOS 13 (Ventura) or higher
+  </Step>
+  <Step title="Xcode">
+    <Info>
+      FlowDeck uses Xcode's internal tools to build and debug your apps.
+    </Info>
+    - Download from the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12) (15.0 or later)
+    - Launch Xcode at least once to install components
+    - Accept the license agreement
+  </Step>
+  <Step title="Xcode Command Line Tools">
+    Install the latest command line tools
+
+    ```bash
+    xcode-select --install
+    ```
+  </Step>
+</Steps>
+
+## Installation
+
+Run this command in your terminal:
+
+```bash
+curl -sSL https://flowdeck.studio/installer/cli.sh | sh
+```
+
+The installer will prompt you to choose an installation directory:
+
+- **`/usr/local/bin`** (recommended) - Requires sudo, works immediately
+- **`~/.local/bin`** - No sudo required, may need PATH configuration
+
+## Verify Installation
+
+After installation, verify FlowDeck CLI is working:
+
+```bash
+flowdeck --version
+```
+
+You should see output like:
+
+```
+1.0.0
+```
+
+## License Activation
+
+FlowDeck CLI requires a valid license for full functionality.
+
+### Activate Your License
+
+```bash
+flowdeck license activate YOUR-LICENSE-KEY
+```
+
+### Check License Status
+
+```bash
+flowdeck license status
+```
+
+### CI/CD Usage
+
+For CI/CD environments, set the license key as an environment variable instead of activating:
+
+```bash
+export FLOWDECK_LICENSE_KEY=YOUR-LICENSE-KEY
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+## Next Steps
+
+Once installed, try these commands:
+
+```bash
+# Navigate to your project
+cd ~/Projects/MyApp
+
+# Launch interactive mode
+flowdeck -i
+
+# Or run commands directly
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+<Note>
+  Check the [Command Reference](/cli/commands) for complete documentation of all available commands.
+</Note>
+
+## Updating
+
+### Via Built-in Update Command
+
+```bash
+# Check for updates
+flowdeck update --check
+
+# Update to latest version
+flowdeck update
+```
+
+### Via Installer
+
+You can also re-run the installer to update:
+
+```bash
+curl -sSL https://flowdeck.studio/installer/cli.sh | sh
+```
+
+## Uninstallation
+
+Remove the FlowDeck binary and configuration:
+
+```bash
+# Remove the binary
+sudo rm /usr/local/bin/flowdeck
+# Or if installed to ~/.local/bin
+rm ~/.local/bin/flowdeck
+
+# Remove configuration files
+rm -rf ~/.flowdeck
+```
+
+<Warning>
+  Before uninstalling, run `flowdeck license deactivate` to free up your license activation slot.
+</Warning>
