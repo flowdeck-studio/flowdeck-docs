@@ -46,19 +46,23 @@ FlowDeck CLI is a standalone command-line tool for building, running, and testin
 
 ```bash
 # Install FlowDeck CLI
-brew install flowdeck/tap/flowdeck
+curl -sSL https://flowdeck.studio/installer/cli.sh | sh
 
-# Discover project structure
-flowdeck context --json
+# CD to your macOS or iOS project
+cd ~/myApp
 
-# Build for iOS simulator
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+# Start FlowDeck's interactive mode
+flowdeck -i
 
-# Build and run
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
+# Check available Commands
+Press 'H' for help on the available commands
+```
 
-# Run tests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+You can also run CLI commands directly, for documentation, check help, ir visit the Commands Overview Page
+
+```bash
+# Get help
+flowdeck --help
 ```
 
 ## Getting Help
