@@ -1,0 +1,133 @@
+---
+title: "Physical Devices"
+description: "Deploy and test on real iOS devices"
+---
+
+FlowDeck CLI supports deploying and running your apps on physical Apple devices connected to your Mac.
+
+## Listing Devices
+
+### List All Connected Devices
+
+```bash
+flowdeck device list
+```
+
+### Filter by Platform
+
+```bash
+flowdeck device list --platform iOS
+```
+
+### Show Only Available Devices
+
+```bash
+flowdeck device list --available-only
+```
+
+### JSON Output
+
+```bash
+flowdeck device list --json
+```
+
+**Example output:**
+
+```
+iOS Devices:
+--------------------------------------------------
+  🔌 [✓] Daniel's iPhone
+     OS: iOS 17.2 | Type: iPhone
+     UDID: 00008110-000123456789ABCD
+     Connection: USB
+
+Found 1 device(s)
+```
+
+**Legend:**
+- 🔌 = USB connection
+- 📡 = Network connection
+- [✓] = Available
+
+## Selecting a Device
+
+Interactively select a device for your project:
+
+```bash
+flowdeck device select
+```
+
+This saves the selection to `.flowdeck/state.json` for use with other commands.
+
+## Installing Apps
+
+### Install an App
+
+```bash
+flowdeck device install <UDID> /path/to/MyApp.app
+```
+
+### Uninstall an App
+
+```bash
+flowdeck device uninstall <UDID> com.example.MyApp
+```
+
+## Launching Apps
+
+Launch an installed app on a device:
+
+```bash
+flowdeck device launch <UDID> com.example.MyApp
+```
+
+## Device Requirements
+
+Before deploying to a physical device, ensure:
+
+- Device is connected via USB or USB-C
+- Device is trusted and unlocked
+- Apple Developer account has correct provisioning profiles
+- Device is registered in your Apple Developer account
+- App's bundle identifier matches your provisioning profile
+- Deployment target is compatible with device's iOS version
+
+## Connection Types
+
+FlowDeck automatically detects:
+
+- **USB** - Direct wired connection (most reliable)
+- **Network** - WiFi network debugging (iOS 14+)
+
+<Note>
+  Network debugging requires the device to be on the same WiFi network and previously paired via USB.
+</Note>
+
+## Debugging Method Selection
+
+FlowDeck automatically selects the best debugging method:
+
+- **iOS 17+** - Uses `devicectl` for faster, more reliable debugging
+- **iOS 16 and below** - Uses `ios-deploy` for compatibility
+
+## Troubleshooting
+
+### Device Not Appearing
+
+1. Ensure the device is unlocked and trusted
+2. Try unplugging and reconnecting the USB cable
+3. Refresh the device list:
+
+```bash
+flowdeck device list
+```
+
+### Code Signing Issues
+
+Check your provisioning profiles and certificates in Xcode's Preferences > Accounts.
+
+### Connection Problems
+
+- Try a different USB cable
+- Check that the device trusts your Mac
+- For network debugging, ensure both are on the same WiFi network

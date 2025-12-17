@@ -1,0 +1,181 @@
+---
+title: "Device Commands"
+description: "Manage physical iOS, iPadOS, watchOS, tvOS, and visionOS devices"
+---
+
+FlowDeck provides comprehensive physical device management via USB and WiFi. Alias: `dev`
+
+## flowdeck device list
+
+List connected physical devices.
+
+```bash
+# List all connected devices
+flowdeck device list
+
+# Filter by platform
+flowdeck device list --platform iOS
+
+# Show only available devices
+flowdeck device list --available-only
+
+# JSON output
+flowdeck device list --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--platform <name>` | `-P` | Filter by platform (iOS, iPadOS, watchOS, tvOS, visionOS) |
+| `--available-only` | `-A` | Show only available devices |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+[
+  {
+    "udid": "00008030-001234567890ABCD",
+    "name": "John's iPhone",
+    "platform": "iOS",
+    "osVersion": "18.1",
+    "deviceType": "iPhone 16 Pro",
+    "connectionType": "USB",
+    "isAvailable": true
+  }
+]
+```
+
+---
+
+## flowdeck device select
+
+Interactively select a physical device for the current project.
+
+```bash
+# Interactive selection
+flowdeck device select
+
+# Filter to iOS devices only
+flowdeck device select --platform iOS
+
+# Select for a specific project
+flowdeck device select --project /path/to/project
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--platform <name>` | `-P` | Filter by platform |
+
+---
+
+## flowdeck device install
+
+Install an app bundle (.app) on a physical device.
+
+```bash
+# Install app on device
+flowdeck device install <UDID> /path/to/MyApp.app
+
+# Install with verbose output
+flowdeck device install <UDID> /path/to/MyApp.app --verbose
+
+# Install with JSON output
+flowdeck device install <UDID> /path/to/MyApp.app --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "message": "App installed successfully",
+  "udid": "00008030-001234567890ABCD",
+  "appPath": "/path/to/MyApp.app"
+}
+```
+
+---
+
+## flowdeck device uninstall
+
+Remove an installed app from a physical device.
+
+```bash
+# Uninstall app from device
+flowdeck device uninstall <UDID> com.example.MyApp
+
+# Uninstall with verbose output
+flowdeck device uninstall <UDID> com.example.MyApp --verbose
+
+# Uninstall with JSON output
+flowdeck device uninstall <UDID> com.example.MyApp --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "message": "App uninstalled successfully",
+  "udid": "00008030-001234567890ABCD",
+  "bundleId": "com.example.MyApp"
+}
+```
+
+---
+
+## flowdeck device launch
+
+Launch an installed app on a physical device.
+
+```bash
+# Launch app on device
+flowdeck device launch <UDID> com.example.MyApp
+
+# Launch with verbose output
+flowdeck device launch <UDID> com.example.MyApp --verbose
+
+# Launch with JSON output
+flowdeck device launch <UDID> com.example.MyApp --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "message": "App launched successfully",
+  "udid": "00008030-001234567890ABCD",
+  "bundleId": "com.example.MyApp"
+}
+```
+
+<Tip>
+Use `flowdeck device list --json` to get the device UDID needed for install, uninstall, and launch commands.
+</Tip>

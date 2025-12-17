@@ -1,0 +1,169 @@
+---
+title: "Building & Running"
+description: "Build and run iOS/macOS apps from the command line"
+---
+
+FlowDeck CLI provides powerful build and run capabilities optimized for command-line workflows and CI/CD integration.
+
+## Building Your App
+
+### Basic Build
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+### Build for macOS
+
+Use `--simulator none` for macOS targets:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --simulator none
+```
+
+### Build Configurations
+
+Specify Debug or Release configuration:
+
+```bash
+# Debug build (default)
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configuration Debug
+
+# Release build
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configuration Release
+```
+
+### Specifying a Scheme
+
+If your project has multiple schemes:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
+```
+
+## Running Your App
+
+### Build and Run
+
+```bash
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+This command:
+1. Builds the app
+2. Opens Simulator.app (if iOS)
+3. Boots the simulator (or uses already running)
+4. Installs the app
+5. Launches the app
+
+### Run with Log Streaming
+
+Stream OSLog output after launching:
+
+```bash
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --log
+```
+
+### Example Output
+
+```
+🔨 Building MyApp for simulator...
+✅ Build succeeded!
+
+📱 Opening Simulator.app...
+📱 Booting simulator (12345678-1234-1234-1234-123456789ABC)...
+✓ Simulator ready
+📦 Installing app on simulator...
+🚀 Launching com.example.MyApp...
+
+✅ App launched successfully!
+💡 Process ID (PID): 54321
+💡 Bundle ID: com.example.MyApp
+💡 Simulator: 12345678-1234-1234-1234-123456789ABC
+```
+
+## JSON Output for Automation
+
+Use `--json` for machine-readable output:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+```
+
+This outputs NDJSON (newline-delimited JSON) events:
+
+```json
+{"type":"app_log","message":"Build Started"}
+{"type":"app_log","message":"Resolving Packages"}
+{"type":"app_log","message":"Building"}
+{"type":"app_log","message":"Build Completed"}
+```
+
+### Parsing JSON Output
+
+```bash
+# Get build status
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | jq -s 'last'
+
+# Check for errors
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | jq 'select(.level == "error")'
+```
+
+## Custom Derived Data
+
+Specify a custom derived data path to avoid conflicts with Xcode:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --derived-data-path ~/FlowDeck/DerivedData
+```
+
+## Cleaning
+
+Clean build artifacts before rebuilding:
+
+```bash
+flowdeck clean
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+## Performance Optimization
+
+FlowDeck CLI automatically:
+- Detects CPU core count for parallel builds
+- Uses optimized build settings
+- Enables incremental compilation
+
+## Troubleshooting
+
+### "Workspace not found"
+
+Ensure you're specifying the correct path:
+
+```bash
+# Use full path if needed
+flowdeck build --workspace /path/to/MyApp.xcworkspace --simulator "iPhone 16"
+
+# Or navigate to the project directory first
+cd ~/Projects/MyApp
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+### "Simulator not found"
+
+List available simulators first:
+
+```bash
+flowdeck simulator list --platform iOS --available-only
+```
+
+### "Build failed"
+
+Try cleaning and rebuilding:
+
+```bash
+flowdeck clean
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+Check the error output for specific issues like missing dependencies or code signing problems.

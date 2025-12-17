@@ -1,0 +1,67 @@
+---
+title: "Cursor Extension vs CLI"
+description: "Choose the right FlowDeck tool for your workflow"
+---
+
+FlowDeck comes in two flavors designed for different workflows. Here's how to choose.
+
+## Feature Comparison
+
+| Feature | Cursor Extension | CLI |
+|---------|------------------|-----|
+| **Best For** | Interactive development | Automation & CI/CD |
+| **Interface** | Graphical UI in editor | Terminal commands |
+| **Code Intelligence** | SourceKit LSP integration | Not included |
+| **Debugging** | LLDB with breakpoints | Not included |
+| **Build & Run** | ✓ | ✓ |
+| **Testing** | Test Explorer | JSON output for pipelines |
+| **Simulators** | Visual management | Full CLI control |
+| **Physical Devices** | ✓ | ✓ |
+| **Log Streaming** | Integrated panel | Terminal streaming |
+| **Interactive Mode** | — | Terminal-based IDE |
+| **AI Agents** | — | Designed for Claude Code |
+
+## When to Use the Cursor Extension
+
+<CardGroup cols={2}>
+  <Card title="Visual IDE Experience" icon="window">
+    You prefer a graphical interface with panels, buttons, and visual feedback
+  </Card>
+  <Card title="Debugging" icon="bug">
+    You need breakpoints, variable inspection, and step-through debugging
+  </Card>
+  <Card title="Code Intelligence" icon="lightbulb">
+    You want autocomplete, go-to-definition, and inline error highlighting
+  </Card>
+  <Card title="Test Explorer" icon="flask">
+    You want to run and manage tests from a visual test tree
+  </Card>
+</CardGroup>
+
+## When to Use the CLI
+
+<CardGroup cols={2}>
+  <Card title="Terminal Workflow" icon="terminal">
+    You prefer working in the terminal and want keyboard-driven development
+  </Card>
+  <Card title="CI/CD Pipelines" icon="gears">
+    You need to automate builds and tests in GitHub Actions, Jenkins, etc.
+  </Card>
+  <Card title="AI Assistants" icon="robot">
+    You're using Claude Code or other AI coding assistants
+  </Card>
+  <Card title="Scripting" icon="code">
+    You need scriptable, automatable build commands
+  </Card>
+</CardGroup>
+
+## Using Both Together
+
+Many developers use both tools:
+
+- **Cursor Extension** for day-to-day development with debugging and code intelligence
+- **CLI** for running builds in CI/CD or when working with AI assistants
+
+<Note>
+  The Cursor Extension and CLI maintain separate configurations. They do not share state files, so you'll need to configure your workspace, scheme, and simulator selections independently in each tool.
+</Note>

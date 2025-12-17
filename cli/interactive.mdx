@@ -1,0 +1,178 @@
+---
+title: "Interactive Mode"
+description: "A terminal-based IDE experience for iOS/macOS development"
+---
+
+FlowDeck CLI includes a powerful interactive mode that provides a terminal-based IDE experience. Launch it with `flowdeck -i` to get a persistent development environment with keyboard shortcuts, log streaming, and a status bar.
+
+## Launching Interactive Mode
+
+```bash
+cd ~/Projects/MyApp
+flowdeck -i
+```
+
+On first run, the interactive mode will guide you through a setup assistant to configure your workspace, scheme, and target.
+
+## Status Bar
+
+The bottom of the terminal displays a persistent status bar showing:
+
+- **Project name** and git branch
+- **Current scheme**
+- **Target** (simulator or device)
+- **Build configuration** (Debug/Release)
+- **App status** (Idle, Building, Running, Error)
+
+## Keyboard Shortcuts
+
+### Execution Commands
+
+| Key | Action |
+|-----|--------|
+| `B` | Build the project |
+| `R` | Build and Run |
+| `K` | Clean build artifacts |
+| `U` | Run tests |
+| `X` | Stop running app |
+| `L` | Toggle log/test viewer (context-aware) |
+
+### Configuration Commands
+
+| Key | Action |
+|-----|--------|
+| `S` | Select scheme |
+| `T` | Select target (simulator/device) |
+| `C` | Select configuration (Debug/Release) |
+| `D` | Show devices and simulators |
+| `P` | Platform management menu |
+| `O` | Xcode menu (open, clean caches) |
+| `G` | AI agent integration menu |
+| `I` | License management |
+| `W` | Save current config to file |
+| `M` | Switch workspace |
+
+### Navigation
+
+| Key | Action |
+|-----|--------|
+| `H` or `?` | Show help |
+| `Q` | Quit interactive mode |
+| `Page Up` | Scroll output up |
+| `Page Down` | Scroll output down |
+| `↑` / `↓` | Command history |
+
+## Features
+
+### Log Streaming
+
+Press `L` to toggle real-time OSLog streaming from your running app. Logs appear in the main output area while the status bar remains fixed at the bottom.
+
+### Test Selection
+
+When you press `U` to run tests, you can choose:
+
+- **All Tests** - Run the complete test suite
+- **Recent Tests** - Re-run tests from your last session
+- **Specific Tests** - Pick individual test classes or methods
+
+### Scheme & Target Selection
+
+Press `S` or `T` to interactively select from available schemes, simulators, or connected devices. Your selection is saved to `.flowdeck/state.json` for future sessions.
+
+### AI Agent Integration
+
+Press `G` to access the AI agent integration menu, which helps configure FlowDeck for use with Claude Code and other AI assistants.
+
+## Example Session
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  FlowDeck Interactive Mode                              │
+│                                                         │
+│  > B                                                    │
+│  ═══ Build: MyApp ═══                                   │
+│  Compiling MyApp (arm64)...                             │
+│  ✓ Build succeeded (2.3s)                               │
+│                                                         │
+│  > R                                                    │
+│  ═══ Run: MyApp ═══                                     │
+│  Building...                                            │
+│  Installing on iPhone 16 Pro...                         │
+│  Launching com.example.MyApp...                         │
+│  ✓ App running (PID: 54321)                             │
+│                                                         │
+│  [DEBUG] App launched                                   │
+│  [INFO] User logged in                                  │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│ MyApp (main) │ MyApp │ iPhone 16 Pro │ Debug │ Running │
+└─────────────────────────────────────────────────────────┘
+```
+
+## State Persistence
+
+Interactive mode saves your configuration to `.flowdeck/state.json`:
+
+- Workspace path
+- Selected scheme
+- Selected simulator/device
+- Build configuration
+- Log streaming preference
+- Recent tests
+
+This state persists across sessions, so you can quit and resume without reconfiguring.
+
+## Tips
+
+<Tip>
+  Use `Ctrl+C` during a build or test run to cancel the operation. The status bar will update to show the cancelled state.
+</Tip>
+
+<Note>
+  Interactive mode requires a project with a `.flowdeck/state.json` file or will run the setup assistant on first launch.
+</Note>
+
+## Exiting
+
+Press `Q` or `Ctrl+C` (when no command is running) to exit interactive mode. Your terminal will be restored to its normal state.
+
+## Getting Help
+
+### In Interactive Mode
+
+Press `H` or `?` at any time to display the help screen with all available commands and shortcuts.
+
+### Command Line Help
+
+```bash
+# Show all CLI options
+flowdeck --help
+
+# Show interactive mode help
+flowdeck -i --help
+```
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Setup assistant keeps appearing">
+    The setup assistant runs when FlowDeck can't find a valid workspace or scheme. Make sure your project has a `.xcworkspace` or `.xcodeproj` file and run the setup again with `S` to select a scheme.
+  </Accordion>
+  <Accordion title="Keyboard shortcuts not working">
+    Make sure the terminal window is focused and no command is currently running. Some shortcuts are disabled during builds or test runs.
+  </Accordion>
+  <Accordion title="Logs not appearing">
+    Press `L` to enable log streaming. Logs only appear when an app is running on a simulator. Physical device logs require Console.app.
+  </Accordion>
+  <Accordion title="Build fails with signing errors">
+    Run `flowdeck build` outside interactive mode to see full error output, or check your Xcode signing settings.
+  </Accordion>
+</AccordionGroup>
+
+### Documentation
+
+- [CLI Commands Reference](/cli/commands) - Full list of CLI commands
+- [Building](/cli/building) - Build configuration options
+- [Testing](/cli/testing) - Test execution options
+- [AI Agent Integration](/cli/ai-agents) - Using FlowDeck with Claude Code

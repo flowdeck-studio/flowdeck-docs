@@ -1,0 +1,79 @@
+---
+title: "CLI Introduction"
+description: "A powerful command-line interface for iOS/macOS development"
+---
+
+FlowDeck CLI is a standalone command-line tool for building, running, and testing iOS/macOS applications without leaving your terminal. It provides a streamlined development experience for developers who prefer working from the command line or need to integrate Xcode builds into CI/CD pipelines.
+
+## Why FlowDeck CLI?
+
+<CardGroup cols={2}>
+  <Card title="Terminal-First" icon="terminal">
+    Build, run, and test directly from your terminal without switching to Xcode
+  </Card>
+  <Card title="CI/CD Ready" icon="gears">
+    JSON output mode for easy integration with automation pipelines
+  </Card>
+  <Card title="AI Agent Compatible" icon="robot">
+    Designed to work seamlessly with Claude Code and other AI assistants
+  </Card>
+  <Card title="Fast Iteration" icon="bolt">
+    Optimized builds with intelligent caching and parallel compilation
+  </Card>
+</CardGroup>
+
+## Key Features
+
+- **Build & Run** - Compile and launch iOS/macOS apps on simulators or devices
+- **Test Execution** - Run unit and UI tests with detailed results
+- **Simulator Management** - Boot, shutdown, and manage iOS simulators
+- **Device Support** - Deploy and run on physical Apple devices
+- **Log Streaming** - Real-time OSLog streaming from running apps
+- **JSON Output** - Machine-readable output for automation and AI agents
+- **Project Discovery** - Auto-detect workspaces, schemes, and build configurations
+
+## Requirements
+
+<Warning>
+  FlowDeck CLI requires macOS with Xcode installed. It does not support Windows or Linux.
+</Warning>
+
+- **macOS** 13.0 or later
+- **Xcode** 15.0 or later (with command line tools)
+- **Apple Silicon Mac**: M1 or later recommended for best performance
+
+## Quick Start
+
+```bash
+# Install FlowDeck CLI
+brew install flowdeck/tap/flowdeck
+
+# Discover project structure
+flowdeck context --json
+
+# Build for iOS simulator
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# Build and run
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# Run tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+## Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Installation Guide" icon="download" href="/cli/install">
+    Get FlowDeck CLI installed on your Mac
+  </Card>
+  <Card title="Command Reference" icon="book" href="/cli/commands">
+    Complete documentation for all CLI commands
+  </Card>
+  <Card title="Community" icon="users" href="https://flowdeck.studio/#join">
+    Join the Discord community
+  </Card>
+  <Card title="Submit an issue" icon="paper-plane" iconType="regular" href="https://github.com/flowdeck-studio/flowdeck-feedback">
+    Got feedback or found a bug? Submit a GitHub Issue
+  </Card>
+</CardGroup>

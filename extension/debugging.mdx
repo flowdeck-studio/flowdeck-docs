@@ -3,7 +3,7 @@ title: "Debugging"
 description: "Debug iOS and macOS applications with LLDB"
 ---
 
-FlowDeck integrates with LLDB-DAP to provide a powerful debugging experience for Swift applications directly within VS Code, offering features comparable to Xcode's debugging capabilities.
+FlowDeck integrates with LLDB-DAP to provide a powerful debugging experience for Swift applications directly within Cursor, offering features comparable to Xcode's debugging capabilities.
 
 ## Features
 
@@ -18,7 +18,7 @@ FlowDeck integrates with LLDB-DAP to provide a powerful debugging experience for
 
 <Steps>
   <Step title="Open your project">
-    Open your iOS project in VS Code
+    Open your iOS project in Cursor
   </Step>
   <Step title="Set breakpoints">
     Click in the gutter next to line numbers to set breakpoints
@@ -98,7 +98,7 @@ Add expressions to monitor:
 
 ## Advanced Configuration
 
-For custom debug configurations and launch options, see [Debug Configuration](/launch-json).
+For custom debug configurations and launch options, see [Debug Configuration](/extension/launch-json).
 
 <Tip>
   Use the **Debug Console** tab during debugging to execute LLDB commands directly. Prefix commands with `-exec` for raw LLDB access.
@@ -125,6 +125,6 @@ For custom debug configurations and launch options, see [Debug Configuration](/l
 - Ensure optimization is turned off
 
 ### Debugger Won't Attach
-- Restart VS Code and simulator
+- Restart Cursor and simulator
 - Clean build folder
 - Check for conflicting debugger instances

@@ -1,0 +1,231 @@
+---
+title: "Build Commands"
+description: "Build, run, and clean your iOS/macOS projects"
+---
+
+## flowdeck build
+
+Build an Xcode project or workspace for simulator, macOS, or physical device.
+
+```bash
+# Build for iOS simulator
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# Build for macOS (no simulator)
+flowdeck build --workspace MyApp.xcworkspace --simulator none
+
+# Release configuration
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configuration Release
+
+# JSON output for automation
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+
+# Load settings from config file
+flowdeck build --config .flowdeck/state.json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
+| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
+| `--scheme <name>` | `-s` | Build scheme name (auto-detected if only one) |
+| `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--derived-data-path <path>` | `-d` | Custom derived data location |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--json` | `-j` | Output JSON events for programmatic consumption |
+| `--verbose` | `-v` | Show full xcodebuild output (default: progress only) |
+
+<Note>
+The `--simulator` parameter is required. Use `--simulator none` for macOS builds.
+</Note>
+
+### Config File Format
+
+The `--config` parameter accepts a JSON file with portable project settings:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Debug",
+  "platform": "iOS",
+  "version": "18.0",
+  "derivedDataPath": "/custom/path"
+}
+```
+
+For macOS builds, set `platform` to `"macOS"` (no simulator needed).
+
+### JSON Output
+
+When using `--json`, the command outputs newline-delimited JSON events:
+
+```json
+{"type":"status","stage":"COMPILING","message":"Compiling sources..."}
+{"type":"status","stage":"LINKING","message":"Linking..."}
+{"type":"result","success":true,"operation":"build","duration":12.5}
+```
+
+**Event Types:**
+
+| Type | Description |
+|------|-------------|
+| `status` | Progress updates with `stage` and `message` |
+| `log` | Build log messages with `level` and `message` |
+| `warning` | Compiler warnings with `file`, `line`, `message` |
+| `error` | Compiler errors with `file`, `line`, `message` |
+| `result` | Final result with `success`, `operation`, `duration` |
+
+**Result Event (Success):**
+
+```json
+{
+  "type": "result",
+  "success": true,
+  "operation": "build",
+  "duration": 12.5
+}
+```
+
+**Result Event (Failure):**
+
+```json
+{
+  "type": "result",
+  "success": false,
+  "operation": "build",
+  "error": {
+    "code": "BUILD_FAILED",
+    "message": "Build failed with 3 errors",
+    "suggestions": ["Check compiler errors above"],
+    "recoverable": true
+  }
+}
+```
+
+---
+
+## flowdeck run
+
+Build and launch the app on a simulator, macOS, or physical device.
+
+```bash
+# Build and run on iOS simulator
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# Run on macOS
+flowdeck run --workspace MyApp.xcworkspace --simulator none
+
+# Run with log streaming
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --log
+
+# Interactive mode (R=rebuild, C=clean+rebuild, Q=quit)
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" -i
+
+# Wait for debugger to attach
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --wait-for-debugger
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
+| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
+| `--scheme <name>` | `-s` | Build scheme name |
+| `--configuration <name>` | `-C` | Build configuration |
+| `--project <path>` | `-p` | Project directory |
+| `--derived-data-path <path>` | `-d` | Custom derived data location |
+| `--config <path>` | `-c` | Path to JSON config file |
+| `--log` | `-l` | Stream logs after launch (print statements + OSLog) |
+| `--wait-for-debugger` | | Wait for debugger to attach before app starts |
+| `--interactive` | `-i` | Interactive mode: R to rebuild, C to clean+rebuild, Q to quit |
+| `--json` | `-j` | Output JSON events |
+| `--verbose` | `-v` | Show app console output (default: suppressed) |
+
+### After Launching
+
+When the app launches, you'll get an App ID. Use it to:
+
+```bash
+flowdeck apps              # List running apps
+flowdeck logs <app-id>     # Stream logs from the app
+flowdeck stop <app-id>     # Stop the app
+```
+
+### JSON Output
+
+```json
+{"type":"status","stage":"COMPILING","message":"Building..."}
+{"type":"status","stage":"INSTALLING","message":"Installing on iPhone 16..."}
+{"type":"status","stage":"LAUNCHING","message":"Launching app..."}
+{"type":"app_launched","appId":"abc123","bundleId":"com.example.MyApp","pid":54321}
+{"type":"result","success":true,"operation":"launch","appId":"abc123"}
+```
+
+**App Launched Event:**
+
+```json
+{
+  "type": "app_launched",
+  "appId": "abc123",
+  "bundleId": "com.example.MyApp",
+  "pid": 54321,
+  "targetType": "simulator",
+  "targetName": "iPhone 16"
+}
+```
+
+---
+
+## flowdeck clean
+
+Clean build artifacts for a project.
+
+```bash
+# Clean with workspace and scheme
+flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
+
+# Clean with custom derived data path
+flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp --derived-data-path /tmp/DerivedData
+
+# Clean using config file
+flowdeck clean --config .flowdeck/state.json
+
+# Delete ALL DerivedData (nuclear option)
+flowdeck clean --derived-data
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--project <path>` | `-p` | Project directory |
+| `--derived-data-path <path>` | `-d` | Custom derived data path |
+| `--config <path>` | `-c` | Path to JSON config file |
+| `--derived-data` | | Delete entire ~/Library/Developer/Xcode/DerivedData folder |
+| `--json` | `-j` | Output JSON events |
+| `--verbose` | `-v` | Show clean output in console |
+
+### When to Use
+
+- Build errors that don't make sense
+- After changing build settings
+- After switching branches with different dependencies
+- When disk space is running low
+
+### JSON Output
+
+```json
+{
+  "type": "result",
+  "success": true,
+  "operation": "clean",
+  "message": "Clean succeeded"
+}
+```

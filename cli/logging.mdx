@@ -1,0 +1,147 @@
+---
+title: "Log Streaming"
+description: "Stream real-time logs from your running apps"
+---
+
+FlowDeck CLI can stream real-time OSLog output from your running apps, making it easy to monitor app behavior without switching to Console.app.
+
+## Streaming Logs
+
+### Run with Log Streaming
+
+The easiest way to stream logs is to use the `--log` flag when running:
+
+```bash
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --log
+```
+
+This builds, runs, and immediately starts streaming logs from your app.
+
+### Stream Logs from Running App
+
+If your app is already running, use the `apps` and `logs` commands:
+
+```bash
+# List running apps
+flowdeck apps
+
+# Stream logs from an app
+flowdeck logs <app-id>
+```
+
+**Example:**
+
+```bash
+$ flowdeck apps
+Running Apps:
+  abc123  com.example.MyApp  iPhone 16 Pro
+  def456  com.example.Test   iPad Pro
+
+Use 'flowdeck logs <app-id>' to stream logs
+Use 'flowdeck stop <app-id>' to stop an app
+
+$ flowdeck logs abc123
+```
+
+## Using OSLog in Your Code
+
+FlowDeck captures logs from Apple's unified logging system (OSLog):
+
+```swift
+import os
+
+// Create a logger
+let logger = Logger(subsystem: "com.example.myapp", category: "networking")
+
+// Log at different levels
+logger.debug("Debug: Starting request")
+logger.info("Info: Request completed")
+logger.warning("Warning: Slow response detected")
+logger.error("Error: Request failed")
+```
+
+### Log Levels
+
+| Level | Description |
+|-------|-------------|
+| `debug` | Detailed debugging information |
+| `info` | General informational messages |
+| `warning` | Warning conditions |
+| `error` | Error conditions |
+| `fault` | Critical errors |
+
+## Log Output
+
+Logs are displayed with color-coded output based on log level:
+
+```
+[DEBUG] 10:23:45.123 - Starting network request
+[INFO]  10:23:45.234 - User logged in successfully
+[WARN]  10:23:45.345 - API response slow (>2s)
+[ERROR] 10:23:45.456 - Failed to parse JSON response
+```
+
+## Stopping Log Streaming
+
+Press `Ctrl+C` to stop streaming logs.
+
+## Stopping Running Apps
+
+Stop an app that was launched by FlowDeck:
+
+```bash
+flowdeck stop <app-id>
+```
+
+## Limitations
+
+<Warning>
+  Log streaming is currently only available for simulators. For physical devices, use Console.app on macOS.
+</Warning>
+
+### Simulator Only
+
+Due to Apple platform restrictions, FlowDeck can only stream logs from:
+- iOS Simulators
+- macOS apps (when running directly)
+
+### For Physical Devices
+
+Use macOS Console.app:
+1. Open Console.app
+2. Select your device from the sidebar
+3. Filter by your app's process name or bundle identifier
+
+## Tips
+
+<Tip>
+  Use specific subsystem and category names in your OSLog calls to make filtering easier:
+
+  ```swift
+  let logger = Logger(subsystem: "com.example.myapp", category: "auth")
+  ```
+</Tip>
+
+<Note>
+  Debug-level logs may not appear in Release builds. Use Info level or higher for logs you always want to see.
+</Note>
+
+## Troubleshooting
+
+### No Logs Appearing
+
+1. Ensure your app uses `os.log` or `Logger` APIs (not just `print()`)
+2. Verify the app is running on a simulator
+3. Check that the debug session started successfully
+
+### Too Many Logs
+
+FlowDeck automatically filters to your app's process. If you're still seeing too many logs:
+- Use more specific subsystem/category names
+- Reduce debug-level logging in your code
+
+### Logs Not Updating
+
+If logs stop appearing:
+1. Check that the app is still running: `flowdeck apps`
+2. Restart log streaming: `flowdeck logs <app-id>`

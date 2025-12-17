@@ -1,0 +1,330 @@
+---
+title: "App & Log Commands"
+description: "Manage running apps and stream logs"
+---
+
+## flowdeck apps
+
+List apps that were launched by FlowDeck.
+
+```bash
+# List running apps
+flowdeck apps
+
+# Include stopped apps
+flowdeck apps --all
+
+# Clean up stale entries
+flowdeck apps --prune
+
+# JSON output
+flowdeck apps --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--all` | `-a` | Show all apps including stopped ones |
+| `--prune` | | Validate and remove stale entries |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "apps": [
+    {
+      "id": "abc12345-1234-5678-9abc-def012345678",
+      "shortId": "abc123",
+      "bundleId": "com.example.MyApp",
+      "status": "running",
+      "targetType": "simulator",
+      "targetName": "iPhone 16 Pro",
+      "scheme": "MyApp",
+      "pid": 54321,
+      "launchedAt": "2025-01-15T10:30:00Z"
+    }
+  ],
+  "staleRemoved": 0
+}
+```
+
+**App Status Values:**
+
+| Status | Description |
+|--------|-------------|
+| `running` | App is currently running |
+| `stopped` | App was stopped normally |
+| `crashed` | App crashed |
+| `exited` | App exited |
+| `waitingForDebugger` | App waiting for debugger to attach |
+| `unknown` | Status cannot be determined |
+
+---
+
+## flowdeck logs
+
+Stream real-time logs from a running app. Alias: `log`
+
+```bash
+# Stream logs (use App ID from 'flowdeck apps')
+flowdeck logs <app-id>
+
+# Stream logs in JSON format
+flowdeck logs <app-id> --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--json` | `-j` | Output as JSON |
+
+<Note>
+Use `flowdeck apps` to get the app ID. You can use either the short ID (e.g., `abc123`) or the bundle ID.
+</Note>
+
+### Log Output Format
+
+Logs are prefixed by their source:
+
+```
+[console]   Messages from print() statements
+[category]  Messages from os_log() with category
+[subsystem] Messages from Logger() with subsystem
+```
+
+### JSON Output
+
+```json
+{"type":"log","level":"info","category":"console","message":"Hello, World!","timestamp":"2025-01-15T10:30:00Z"}
+{"type":"log","level":"debug","category":"MyCategory","message":"User logged in","timestamp":"2025-01-15T10:30:01Z"}
+```
+
+---
+
+## flowdeck stop
+
+Stop a running app.
+
+```bash
+# Stop specific app
+flowdeck stop <app-id>
+
+# Stop all running apps
+flowdeck stop --all
+
+# Force kill unresponsive app
+flowdeck stop <app-id> --force
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--all` | `-a` | Stop all running apps |
+| `--force` | `-f` | Force kill (SIGKILL instead of SIGTERM) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "type": "result",
+  "success": true,
+  "operation": "stop",
+  "appId": "abc123",
+  "bundleId": "com.example.MyApp"
+}
+```
+
+---
+
+## flowdeck context
+
+Discover project structure including workspace, schemes, simulators, and build configurations. This is typically the **first command to run** in a new project. Alias: `ctx`
+
+```bash
+# Human-readable output
+flowdeck context
+
+# JSON output (recommended for AI agents)
+flowdeck context --json
+
+# Specific project directory
+flowdeck context --project /path/to/project
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "schemes": [
+    {
+      "name": "MyApp",
+      "category": "iOS",
+      "isShared": true,
+      "productType": "application",
+      "platform": "iOS"
+    },
+    {
+      "name": "MyAppTests",
+      "category": "Tests",
+      "isShared": true
+    }
+  ],
+  "buildConfigurations": ["Debug", "Release"],
+  "simulators": [
+    {
+      "udid": "12345678-1234-1234-1234-123456789ABC",
+      "name": "iPhone 16 Pro",
+      "platform": "iOS",
+      "osVersion": "18.0",
+      "state": "Shutdown"
+    }
+  ]
+}
+```
+
+### Typical Workflow
+
+```bash
+# 1. Discover project info
+flowdeck context --json
+
+# 2. Build with discovered parameters
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# 3. Run with discovered parameters
+flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16 Pro"
+```
+
+---
+
+## flowdeck scheme list
+
+List all schemes in a workspace or project. Alias: `sch list`
+
+```bash
+# List schemes in a workspace
+flowdeck scheme list --workspace MyApp.xcworkspace
+
+# List schemes as JSON
+flowdeck scheme list --workspace MyApp.xcworkspace --json
+
+# Use saved configuration
+flowdeck scheme list
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+[
+  {
+    "name": "MyApp",
+    "category": "iOS",
+    "isShared": true,
+    "productType": "application",
+    "platform": "iOS"
+  }
+]
+```
+
+---
+
+## flowdeck scheme info
+
+Show detailed information about a scheme. Alias: `sch info`
+
+```bash
+# Show scheme info
+flowdeck scheme info --workspace MyApp.xcworkspace --scheme MyApp
+
+# Show scheme info as JSON
+flowdeck scheme info --workspace MyApp.xcworkspace --scheme MyApp --json
+
+# Use saved configuration
+flowdeck scheme info
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
+| `--scheme <name>` | `-s` | Scheme name to inspect |
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "name": "MyApp",
+  "path": "/path/to/MyApp.xcscheme",
+  "isShared": true,
+  "buildAction": {
+    "parallelizeBuildables": true,
+    "targets": [
+      {
+        "name": "MyApp",
+        "buildForTesting": true,
+        "buildForRunning": true,
+        "buildForProfiling": true,
+        "buildForArchiving": true,
+        "buildForAnalyzing": true
+      }
+    ]
+  },
+  "testAction": {
+    "testTargets": ["MyAppTests", "MyAppUITests"]
+  },
+  "launchAction": {
+    "buildableName": "MyApp.app",
+    "launchStyle": "Auto"
+  }
+}
+```
+
+---
+
+## flowdeck buildconfig
+
+List available build configurations for a project. Aliases: `config`, `cfg`
+
+```bash
+flowdeck buildconfig --workspace MyApp.xcworkspace
+flowdeck buildconfig --workspace MyApp.xcworkspace --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "configurations": ["Debug", "Release"]
+}
+```

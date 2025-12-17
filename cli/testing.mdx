@@ -1,0 +1,214 @@
+---
+title: "Testing"
+description: "Run unit and UI tests from the command line"
+---
+
+FlowDeck CLI provides comprehensive test execution capabilities, making it easy to run tests from the terminal or integrate into CI/CD pipelines.
+
+## Running All Tests
+
+```bash
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+## Running Tests on macOS
+
+Use `--simulator none` for macOS-only test targets:
+
+```bash
+flowdeck test --workspace MyApp.xcworkspace --simulator none
+```
+
+## Filtering Tests
+
+### By Test Target
+
+Run specific test targets:
+
+```bash
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --test-targets MyAppTests
+
+# Multiple targets
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --test-targets MyAppTests,MyAppUITests
+```
+
+### By Test Class or Method
+
+The `--only` option supports flexible matching:
+
+```bash
+# Run all tests in a class
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --only LoginTests
+
+# Run a specific test method
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --only testValidLogin
+
+# Run with full path
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --only MyAppTests/LoginTests/testValidLogin
+```
+
+### Skipping Tests
+
+Skip specific tests:
+
+```bash
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+  --skip MyAppTests/SlowIntegrationTests
+```
+
+## Test Discovery
+
+Discover all available tests before running:
+
+```bash
+# Human-readable format
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+
+# JSON format
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
+
+# Filter by name
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --filter Login
+```
+
+**Example output:**
+
+```
+🧪 Tests in MyScheme
+
+LoginTests
+  - testValidLogin LoginTests.swift:23
+  - testInvalidPassword LoginTests.swift:45
+
+CartTests
+  - testAddItem CartTests.swift:12
+  - testRemoveItem CartTests.swift:34
+
+Total: 4 test(s) in 2 class(es)
+```
+
+## JSON Output
+
+For CI/CD integration, use JSON output:
+
+```bash
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+```
+
+**Example JSON output:**
+
+```json
+{"type":"test_started","test":"LoginTests/testValidLogin"}
+{"type":"test_passed","test":"LoginTests/testValidLogin","duration":0.123}
+{"type":"test_started","test":"LoginTests/testInvalidPassword"}
+{"type":"test_failed","test":"LoginTests/testInvalidPassword","message":"Expected failure but got success"}
+{"type":"test_summary","passed":1,"failed":1,"skipped":0,"duration":0.456}
+```
+
+## CI/CD Integration
+
+### GitHub Actions Example
+
+```yaml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FlowDeck
+        run: brew install flowdeck/tap/flowdeck
+
+      - name: Run Tests
+        env:
+          FLOWDECK_LICENSE_KEY: ${{ secrets.FLOWDECK_LICENSE_KEY }}
+        run: |
+          flowdeck test \
+            --workspace MyApp.xcworkspace \
+            --simulator "iPhone 16" \
+            --json > test-results.json
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.json
+```
+
+### Parsing Results
+
+```bash
+# Count passed tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | \
+  jq -s '[.[] | select(.type == "test_passed")] | length'
+
+# List failed tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | \
+  jq -s '[.[] | select(.type == "test_failed")] | .[].test'
+```
+
+## Test Output
+
+### Human-Readable Output
+
+```
+🧪 Running tests...
+  Workspace: MyApp.xcworkspace
+  Scheme: MyApp
+  Configuration: Debug
+  Simulator: iPhone 16 Pro
+
+Test Results
+============
+
+Total Tests: 45
+Passed: 43 ✅
+Failed: 2 ❌
+Skipped: 0 ⏭️
+Duration: 12.34s
+
+Failures:
+  ❌ testLoginWithInvalidCredentials: Expected failure but got success
+  ❌ testNetworkTimeout: Async expectation not fulfilled
+
+❌ Some tests failed.
+```
+
+## Tips
+
+<Tip>
+  Use `--json` output in CI/CD for reliable parsing and integration with test reporting tools.
+</Tip>
+
+<Note>
+  Test discovery requires building the test targets first. Run a full build if tests aren't being discovered correctly.
+</Note>
+
+## Troubleshooting
+
+### Tests Not Discovered
+
+Ensure the project builds successfully:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+```
+
+### Simulator Issues
+
+If tests fail to start, try booting the simulator first:
+
+```bash
+flowdeck simulator list --platform iOS
+flowdeck simulator boot <UDID>
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```

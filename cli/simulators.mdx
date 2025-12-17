@@ -1,0 +1,255 @@
+---
+title: "Simulators"
+description: "Manage iOS simulators from the command line"
+---
+
+FlowDeck CLI provides comprehensive simulator management capabilities, allowing you to list, create, boot, and manage iOS simulators without leaving your terminal.
+
+## Listing Simulators
+
+### List All Simulators
+
+```bash
+flowdeck simulator list
+```
+
+### Filter by Platform
+
+```bash
+flowdeck simulator list --platform iOS
+flowdeck simulator list --platform tvOS
+flowdeck simulator list --platform watchOS
+flowdeck simulator list --platform visionOS
+```
+
+### Show Only Available Simulators
+
+```bash
+flowdeck simulator list --available-only
+```
+
+### JSON Output
+
+```bash
+flowdeck simulator list --json
+```
+
+**Example output:**
+
+```
+iOS Simulators:
+--------------------------------------------------
+  🟢 [✓] iPhone 16 Pro
+     OS: iOS 18.0 | State: Booted
+     UDID: 12345678-1234-1234-1234-123456789ABC
+
+  ⚪️ [✓] iPhone 16
+     OS: iOS 18.0 | State: Shutdown
+     UDID: 23456789-2345-2345-2345-23456789ABCD
+
+Found 2 simulator(s)
+🟢 1 booted
+```
+
+**Legend:**
+- 🟢 = Booted
+- ⚪️ = Shutdown
+- [✓] = Available
+- [✗] = Unavailable
+
+## Selecting a Simulator
+
+Interactively select a simulator for your project:
+
+```bash
+flowdeck simulator select
+flowdeck simulator select --platform iOS
+```
+
+This saves the selection to `.flowdeck/state.json` for use with other commands.
+
+## Booting & Shutting Down
+
+### Boot a Simulator
+
+```bash
+flowdeck simulator boot <UDID>
+```
+
+### Shutdown a Simulator
+
+```bash
+flowdeck simulator shutdown <UDID>
+```
+
+### Open Simulator.app
+
+```bash
+flowdeck simulator open
+```
+
+## Creating Simulators
+
+### Create a New Simulator
+
+```bash
+flowdeck simulator create \
+  --name "My Test iPhone" \
+  --device-type "iPhone 15 Pro" \
+  --runtime "iOS 17.2"
+```
+
+### Find Available Options
+
+```bash
+# List available device types
+flowdeck simulator device-types
+
+# List available runtimes
+flowdeck simulator runtimes
+```
+
+## Deleting Simulators
+
+### Delete by UDID
+
+```bash
+flowdeck simulator delete <UDID>
+```
+
+### Delete Unavailable Simulators
+
+Remove all simulators that are no longer available:
+
+```bash
+flowdeck simulator delete --unavailable
+```
+
+### Prune Unused Simulators
+
+Delete simulators that have never been used:
+
+```bash
+flowdeck simulator prune
+```
+
+## Screenshots
+
+Capture a screenshot from a running simulator:
+
+```bash
+# Save to default location
+flowdeck simulator screenshot <UDID>
+
+# Custom output path
+flowdeck simulator screenshot <UDID> --output ~/Desktop/screenshot.png
+```
+
+## Cache Management
+
+### Clear Simulator Cache
+
+```bash
+flowdeck simulator clear-cache
+```
+
+### Erase Simulator Contents
+
+Reset a simulator to factory state:
+
+```bash
+flowdeck simulator erase <UDID>
+```
+
+<Warning>
+  Erasing a simulator deletes all apps, data, and settings. This cannot be undone.
+</Warning>
+
+## CI/CD Usage
+
+### Boot Simulator Before Tests
+
+```bash
+# Get UDID from list
+UDID=$(flowdeck simulator list --platform iOS --json | jq -r '.[0].udid')
+
+# Boot if not already running
+flowdeck simulator boot "$UDID"
+
+# Run tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+```
+
+### Create Fresh Simulator for CI
+
+```bash
+# Create a clean simulator
+flowdeck simulator create \
+  --name "CI-iPhone" \
+  --device-type "iPhone 16" \
+  --runtime "iOS 18.0" \
+  --json
+
+# Run tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "CI-iPhone"
+
+# Delete when done
+flowdeck simulator delete "CI-iPhone"
+```
+
+## JSON Output Examples
+
+### simulator list --json
+
+```json
+[
+  {
+    "udid": "12345678-1234-1234-1234-123456789ABC",
+    "name": "iPhone 16 Pro",
+    "platform": "iOS",
+    "os": "iOS 18.0",
+    "state": "Booted",
+    "isAvailable": true
+  }
+]
+```
+
+### simulator runtimes --json
+
+```json
+[
+  {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-0",
+    "name": "iOS 18.0",
+    "version": "18.0",
+    "isAvailable": true
+  }
+]
+```
+
+## Troubleshooting
+
+### Simulator Won't Boot
+
+Try erasing and rebooting:
+
+```bash
+flowdeck simulator erase <UDID>
+flowdeck simulator boot <UDID>
+```
+
+### Simulator Not Found
+
+Verify the simulator exists and get its UDID:
+
+```bash
+flowdeck simulator list --json | jq '.[] | {name, udid}'
+```
+
+### Old Runtimes
+
+Check for available runtimes and update Xcode if needed:
+
+```bash
+flowdeck simulator runtimes
+```

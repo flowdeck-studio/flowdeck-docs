@@ -1,0 +1,201 @@
+---
+title: "Test Commands"
+description: "Run and discover unit and UI tests"
+---
+
+## flowdeck test
+
+Run unit and UI tests.
+
+```bash
+# Run all tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+
+# Run tests on macOS
+flowdeck test --workspace MyApp.xcworkspace --simulator none
+
+# Run specific test target
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --test-targets MyAppTests
+
+# Run specific test (class name or method name - auto-resolved)
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --only LoginTests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --only testValidLogin
+
+# Run with full test path
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
+    --only MyAppTests/LoginTests/testValidLogin
+
+# Skip specific tests
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --skip MyAppTests/SlowTests
+
+# Load settings from config file
+flowdeck test --config .flowdeck/state.json
+
+# JSON output for automation
+flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
+| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
+| `--scheme <name>` | `-s` | Test scheme name (auto-detected if only one) |
+| `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--derived-data-path <path>` | `-d` | Custom derived data location |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--test-targets <targets>` | | Comma-separated test target names |
+| `--only <tests>` | | Run only specific tests (class, method, or full path) |
+| `--skip <tests>` | | Skip specific tests |
+| `--progress` | | Show test results as they complete (pass/fail per test) |
+| `--streaming` | | Stream clean formatted test results (no escape codes) |
+| `--json` | `-j` | Output JSON events for programmatic consumption |
+| `--verbose` | `-v` | Show raw xcodebuild test output |
+
+<Note>
+The `--simulator` parameter is required. Use `--simulator none` for macOS builds.
+</Note>
+
+### Test Filtering
+
+The `--only` option supports multiple formats:
+
+- **Full path**: `MyAppTests/LoginTests/testValidLogin` - runs a specific test method
+- **Class name**: `LoginTests` - runs all tests in that class
+- **Method name**: `testValidLogin` - runs all tests with that method name (across classes)
+
+You can specify multiple tests by using `--only` multiple times or separating with commas.
+
+### Config File Format
+
+The `--config` parameter accepts a JSON file with portable project settings:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Debug",
+  "platform": "iOS",
+  "version": "18.0",
+  "derivedDataPath": "/custom/path"
+}
+```
+
+For macOS builds, set `platform` to `"macOS"` (no simulator needed).
+
+### JSON Output
+
+When using `--json`, the command outputs newline-delimited JSON events during execution, followed by a final test result:
+
+```json
+{"type":"status","stage":"COMPILING","message":"Building for testing..."}
+{"type":"status","stage":"TESTING","message":"Running tests on iPhone 16..."}
+{"type":"test_started","testName":"LoginTests/testValidLogin"}
+{"type":"test_passed","testName":"LoginTests/testValidLogin","duration":0.023}
+{"type":"test_failed","testName":"LoginTests/testInvalidLogin","duration":0.045,"reason":"XCTAssertEqual failed","file":"LoginTests.swift","line":42}
+{"type":"result","success":false,"operation":"test"}
+```
+
+**Event Types:**
+
+| Type | Description |
+|------|-------------|
+| `status` | Progress updates with `stage` and `message` |
+| `test_started` | Test execution started with `testName` |
+| `test_passed` | Test passed with `testName` and `duration` |
+| `test_failed` | Test failed with `testName`, `duration`, `reason`, `file`, `line` |
+| `test_skipped` | Test skipped with `testName` and optional `reason` |
+| `result` | Final result with `success` and `operation` |
+
+**Final Result (Success):**
+
+```json
+{
+  "success": true,
+  "totalTests": 42,
+  "passedTests": 42,
+  "failedTests": 0,
+  "skippedTests": 0,
+  "duration": 12.5,
+  "passedTestNames": ["LoginTests/testValidLogin", "..."],
+  "skippedTestNames": [],
+  "failures": []
+}
+```
+
+**Final Result (Failure):**
+
+```json
+{
+  "success": false,
+  "totalTests": 42,
+  "passedTests": 40,
+  "failedTests": 2,
+  "skippedTests": 0,
+  "duration": 15.3,
+  "passedTestNames": ["..."],
+  "skippedTestNames": [],
+  "failures": [
+    {
+      "testName": "LoginTests/testInvalidLogin",
+      "reason": "XCTAssertEqual failed: (\"expected\") is not equal to (\"actual\")",
+      "fileName": "LoginTests.swift",
+      "lineNumber": 42,
+      "duration": 0.045
+    }
+  ]
+}
+```
+
+---
+
+## flowdeck test discover
+
+Discover all available tests in a project by parsing test source files.
+
+```bash
+# List all tests (human-readable)
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+
+# List all tests as JSON (for tooling)
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
+
+# Filter tests by name
+flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --filter Login
+
+# Use short options
+flowdeck test discover -w MyApp.xcworkspace -s MyScheme
+
+# Load settings from config file
+flowdeck test discover --config .flowdeck/state.json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
+| `--scheme <name>` | `-s` | Scheme name (required) |
+| `--project <path>` | `-p` | Project directory |
+| `--config <path>` | `-c` | Path to JSON config file |
+| `--filter <query>` | `-F` | Filter tests by name (case-insensitive) |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "tests": [
+    {
+      "target": "MyAppTests",
+      "class": "LoginTests",
+      "method": "testValidLogin",
+      "identifier": "MyAppTests/LoginTests/testValidLogin",
+      "file": "LoginTests.swift",
+      "filePath": "/path/to/LoginTests.swift",
+      "lineNumber": 15
+    }
+  ]
+}
