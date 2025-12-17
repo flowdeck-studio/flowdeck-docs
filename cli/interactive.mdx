@@ -28,39 +28,39 @@ The bottom of the terminal displays a persistent status bar showing:
 
 ### Execution Commands
 
-| Key | Action |
-|-----|--------|
-| `B` | Build the project |
-| `R` | Build and Run |
-| `K` | Clean build artifacts |
-| `U` | Run tests |
-| `X` | Stop running app |
+| Key | Action                                 |
+| --- | -------------------------------------- |
+| `B` | Build the project                      |
+| `R` | Build and Run                          |
+| `K` | Clean build artifacts                  |
+| `U` | Run tests                              |
+| `X` | Stop running app                       |
 | `L` | Toggle log/test viewer (context-aware) |
 
 ### Configuration Commands
 
-| Key | Action |
-|-----|--------|
-| `S` | Select scheme |
-| `T` | Select target (simulator/device) |
+| Key | Action                               |
+| --- | ------------------------------------ |
+| `S` | Select scheme                        |
+| `T` | Select target (simulator/device)     |
 | `C` | Select configuration (Debug/Release) |
-| `D` | Show devices and simulators |
-| `P` | Platform management menu |
-| `O` | Xcode menu (open, clean caches) |
-| `G` | AI agent integration menu |
-| `I` | License management |
-| `W` | Save current config to file |
-| `M` | Switch workspace |
+| `D` | Show devices and simulators          |
+| `P` | Platform management menu             |
+| `O` | Xcode menu (open, clean caches)      |
+| `G` | AI agent integration menu            |
+| `I` | License management                   |
+| `W` | Save current config to file          |
+| `M` | Switch workspace                     |
 
 ### Navigation
 
-| Key | Action |
-|-----|--------|
-| `H` or `?` | Show help |
-| `Q` | Quit interactive mode |
-| `Page Up` | Scroll output up |
-| `Page Down` | Scroll output down |
-| `↑` / `↓` | Command history |
+| Key         | Action                |
+| ----------- | --------------------- |
+| `H` or `?`  | Show help             |
+| `Q`         | Quit interactive mode |
+| `Page Up`   | Scroll output up      |
+| `Page Down` | Scroll output down    |
+| `↑` / `↓`   | Command history       |
 
 ## Features
 
@@ -72,13 +72,13 @@ Press `L` to toggle real-time OSLog streaming from your running app. Logs appear
 
 When you press `U` to run tests, you can choose:
 
-- **All Tests** - Run the complete test suite
-- **Recent Tests** - Re-run tests from your last session
+- **All Tests** - Run the complete test suite for the selected Scheme
+- **Recent Tests** - Re-run tests from your current session
 - **Specific Tests** - Pick individual test classes or methods
 
 ### Scheme & Target Selection
 
-Press `S` or `T` to interactively select from available schemes, simulators, or connected devices. Your selection is saved to `.flowdeck/state.json` for future sessions.
+Press `S` or `T` to interactively select from available schemes, simulators, or connected devices. Your selection is saved for future sessions.
 
 ### AI Agent Integration
 
@@ -86,31 +86,10 @@ Press `G` to access the AI agent integration menu, which helps configure FlowDec
 
 ## Example Session
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  FlowDeck Interactive Mode                              │
-│                                                         │
-│  > B                                                    │
-│  ═══ Build: MyApp ═══                                   │
-│  Compiling MyApp (arm64)...                             │
-│  ✓ Build succeeded (2.3s)                               │
-│                                                         │
-│  > R                                                    │
-│  ═══ Run: MyApp ═══                                     │
-│  Building...                                            │
-│  Installing on iPhone 16 Pro...                         │
-│  Launching com.example.MyApp...                         │
-│  ✓ App running (PID: 54321)                             │
-│                                                         │
-│  [DEBUG] App launched                                   │
-│  [INFO] User logged in                                  │
-│                                                         │
-├─────────────────────────────────────────────────────────┤
-│ MyApp (main) │ MyApp │ iPhone 16 Pro │ Debug │ Running │
-└─────────────────────────────────────────────────────────┘
-```
+![Interactive Mode](/images/interactive_mode.png)
 
-## State Persistence
+## \
+State Persistence
 
 Interactive mode saves your configuration to `.flowdeck/state.json`:
 
@@ -126,16 +105,16 @@ This state persists across sessions, so you can quit and resume without reconfig
 ## Tips
 
 <Tip>
-  Use `Ctrl+C` during a build or test run to cancel the operation. The status bar will update to show the cancelled state.
+  Use `ESC` during a build or test run to cancel the operation. 
 </Tip>
 
 <Note>
-  Interactive mode requires a project with a `.flowdeck/state.json` file or will run the setup assistant on first launch.
+  Use 'W' to save your current configuration and use it directly via the standard CLI --config
 </Note>
 
 ## Exiting
 
-Press `Q` or `Ctrl+C` (when no command is running) to exit interactive mode. Your terminal will be restored to its normal state.
+Press `Q` (when no command is running) to exit interactive mode. Your terminal will be restored to its normal state.
 
 ## Getting Help
 
@@ -148,9 +127,6 @@ Press `H` or `?` at any time to display the help screen with all available comma
 ```bash
 # Show all CLI options
 flowdeck --help
-
-# Show interactive mode help
-flowdeck -i --help
 ```
 
 ### Common Issues
