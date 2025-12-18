@@ -125,7 +125,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install FlowDeck
-        run: brew install flowdeck/tap/flowdeck
+        run: curl -sSL https://flowdeck.studio/install.sh | sh
 
       - name: Run Tests
         env:

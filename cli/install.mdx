@@ -126,9 +126,10 @@ curl -sSL https://flowdeck.studio/install.sh | sh
 Remove the FlowDeck binary and configuration:
 
 ```bash
-# Remove the binary
-sudo rm /usr/local/bin/flowdeck
-# Or if installed to ~/.local/bin
+# Remove the binary and resources
+rm -rf ~/.local/share/flowdeck
+
+# Remove the symlink
 rm ~/.local/bin/flowdeck
 
 # Remove configuration files
