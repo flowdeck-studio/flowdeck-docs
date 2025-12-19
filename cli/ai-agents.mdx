@@ -5,66 +5,53 @@ description: "Using FlowDeck CLI with Claude Code and other AI assistants"
 
 FlowDeck CLI is designed to work seamlessly with AI coding assistants like Claude Code. The JSON output mode and structured commands make it easy for AI agents to discover, build, and test iOS/macOS projects.
 
-## Claude Code Skill
+## Claude Code Plugin
 
-FlowDeck includes a Skill file that teaches Claude Code how to build, run, test, and debug iOS/macOS apps. The Skill provides Claude Code with:
+FlowDeck provides a plugin for Claude Code that teaches it how to build, run, test, and debug iOS/macOS apps. The plugin includes:
 
-- Automatic project discovery
-- Build and run commands
-- Test execution and result parsing
-- Simulator and device management
-- Log streaming from running apps
-- Screenshot capture for UI verification
+- **Skill**: Teaches Claude about FlowDeck commands and workflows
+- **Hook**: Blocks direct use of xcodebuild/simctl and suggests FlowDeck equivalents
 
-### Installing the Skill
+### Installing the Plugin
 
-```bash
-# Install globally (recommended)
-flowdeck integrate install --global
+In Claude Code, run:
 
-# Or install for current project only
-flowdeck integrate install
+```
+/plugin marketplace add flowdeck-studio/flowdeck-plugin
+/plugin install flowdeck@flowdeck-studio-flowdeck-plugin
 ```
 
-This copies the FlowDeck Skill to your Claude Code configuration. After installation, Claude Code will automatically use FlowDeck for iOS/macOS development tasks.
+Or install directly:
 
-### Checking Status
-
-```bash
-flowdeck integrate status
+```
+/plugin install https://github.com/flowdeck-studio/flowdeck-plugin
 ```
 
-Shows whether the Skill is installed globally and/or in the current project.
+### What It Does
 
-### Using the Skill
+Once installed, Claude Code will automatically:
 
-Once installed, just ask Claude Code to work with your iOS/macOS project:
+1. Use `flowdeck` commands instead of xcodebuild, xcrun simctl, etc.
+2. Follow the FlowDeck debug loop (run app, attach logs, capture screenshots)
+3. Block attempts to use Apple CLI tools directly
+
+### Example Prompts
+
+Just ask Claude Code to work with your iOS/macOS project:
 
 ```
 "Build and run my app on an iPhone simulator"
 "Run the unit tests and fix any failures"
 "Take a screenshot of the current simulator state"
+"Debug why the login screen isn't working"
 ```
 
 Claude Code will automatically invoke FlowDeck commands with the correct parameters.
 
-### Updating the Skill
-
-The Skill auto-updates when you run any FlowDeck command. To manually reinstall:
-
-```bash
-flowdeck integrate uninstall --global
-flowdeck integrate install --global
-```
-
 ### Uninstalling
 
-```bash
-# Remove global installation
-flowdeck integrate uninstall --global
-
-# Remove project installation
-flowdeck integrate uninstall
+```
+/plugin uninstall flowdeck
 ```
 
 ---
@@ -238,7 +225,7 @@ AI Agent:
 
 ## Configuring Other AI Agents
 
-For AI coding assistants that don't support Claude Code Skills (like Cursor, Windsurf, Cline, or Copilot), you can configure them to use FlowDeck by adding instructions to your project's rules file.
+For AI coding assistants that don't support Claude Code plugins (like Cursor, Windsurf, Cline, or Copilot), you can configure them to use FlowDeck by adding instructions to your project's rules file.
 
 ### Cursor
 
@@ -317,3 +304,31 @@ Always use --json for machine-readable output.
 | **Discovery** | `context --json` | Parse multiple files |
 
 FlowDeck abstracts away the complexity of Apple's fragmented tooling, making it much easier for AI agents to reliably build and test iOS/macOS apps.
+
+---
+
+## FlowDeck Skill for Other AI Agents
+
+For AI tools that don't support Claude Code plugins (Cursor, Windsurf, Cline, Copilot, etc.), download the FlowDeck skill and reference it in your project:
+
+### 1. Download the Skill
+
+```bash
+curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main/skills/flowdeck/SKILL.md -o FLOWDECK.md
+```
+
+### 2. Reference in AGENTS.md
+
+Add this line to your `AGENTS.md` (or create one):
+
+```markdown
+@import FLOWDECK.md
+```
+
+Or for Cursor, add to `.cursor/rules`:
+
+```markdown
+@import ../FLOWDECK.md
+```
+
+The skill teaches AI agents how to build, run, test, and debug iOS/macOS apps using FlowDeck instead of Apple's CLI tools.

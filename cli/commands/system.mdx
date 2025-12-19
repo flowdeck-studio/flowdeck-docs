@@ -1,6 +1,6 @@
 ---
 title: "System Commands"
-description: "Platform management, Xcode utilities, license, updates, and AI integration"
+description: "Platform management, Xcode utilities, license, and updates"
 ---
 
 ## Platform Commands
@@ -304,66 +304,3 @@ curl -sSL https://flowdeck.studio/install.sh | sh
 ```
 </Note>
 
----
-
-## AI Integration Commands
-
-### flowdeck integrate install
-
-Install the FlowDeck Skill for Claude Code.
-
-```bash
-# Install globally (recommended)
-flowdeck integrate install --global
-
-# Install for current project only
-flowdeck integrate install
-```
-
-#### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--global` | `-g` | Install to ~/.claude/ instead of project level |
-| `--project <path>` | `-p` | Project directory (default: current) |
-| `--json` | `-j` | Output as JSON |
-
----
-
-### flowdeck integrate status
-
-Show AI assistant integration status.
-
-```bash
-flowdeck integrate status
-flowdeck integrate status --json
-```
-
-#### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--project <path>` | `-p` | Project directory (default: current) |
-| `--json` | `-j` | Output as JSON |
-
----
-
-### flowdeck integrate uninstall
-
-Remove FlowDeck integration.
-
-```bash
-# Remove global integration
-flowdeck integrate uninstall --global
-
-# Remove project-level integration
-flowdeck integrate uninstall
-```
-
-#### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--global` | `-g` | Remove from ~/.claude/ |
-| `--project <path>` | `-p` | Project directory (default: current) |
-| `--json` | `-j` | Output as JSON |
