@@ -238,10 +238,10 @@ When working with iOS or macOS projects, use FlowDeck CLI instead of xcodebuild,
 
 ## Build Commands
 
-- **Build**: `flowdeck build --workspace <path> --simulator "<name>" --json`
-- **Run**: `flowdeck run --workspace <path> --simulator "<name>" --json`
-- **Test**: `flowdeck test --workspace <path> --simulator "<name>" --json`
-- **Clean**: `flowdeck clean --workspace <path> --scheme <name>`
+- **Build**: `flowdeck build --workspace PATH --simulator "NAME" --json`
+- **Run**: `flowdeck run --workspace PATH --simulator "NAME" --json`
+- **Test**: `flowdeck test --workspace PATH --simulator "NAME" --json`
+- **Clean**: `flowdeck clean --workspace PATH --scheme NAME`
 
 ## Project Discovery
 
@@ -255,15 +255,15 @@ This returns the workspace path, available schemes, build configurations, and si
 ## Simulator Management
 
 - **List simulators**: `flowdeck simulator list --json`
-- **Boot simulator**: `flowdeck simulator boot <udid>`
-- **Take screenshot**: `flowdeck simulator screenshot <udid>`
+- **Boot simulator**: `flowdeck simulator boot UDID`
+- **Take screenshot**: `flowdeck simulator screenshot UDID`
 
 ## App Management
 
 After running an app:
 - **List running apps**: `flowdeck apps --json`
-- **Stream logs**: `flowdeck logs <app-id>`
-- **Stop app**: `flowdeck stop <app-id>`
+- **Stream logs**: `flowdeck logs APP_ID`
+- **Stop app**: `flowdeck stop APP_ID`
 
 ## Key Parameters
 
@@ -284,9 +284,9 @@ For any AI assistant, you can add this to your system prompt or project instruct
 For iOS/macOS development tasks, use FlowDeck CLI instead of xcodebuild:
 
 1. Discover project: flowdeck context --json
-2. Build: flowdeck build --workspace <path> --simulator "<name>" --json
-3. Run: flowdeck run --workspace <path> --simulator "<name>" --json
-4. Test: flowdeck test --workspace <path> --simulator "<name>" --json
+2. Build: flowdeck build --workspace PATH --simulator "NAME" --json
+3. Run: flowdeck run --workspace PATH --simulator "NAME" --json
+4. Test: flowdeck test --workspace PATH --simulator "NAME" --json
 
 Use --simulator "iPhone 16" for iOS or --simulator none for macOS.
 Always use --json for machine-readable output.
