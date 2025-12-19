@@ -3,25 +3,20 @@ title: "AI Agent Integration"
 description: "Using FlowDeck CLI with Claude Code and other AI assistants"
 ---
 
-FlowDeck CLI is designed to work seamlessly with AI coding assistants like Claude Code. The JSON output mode and structured commands make it easy for AI agents to discover, build, and test iOS/macOS projects.
+FlowDeck CLI is designed to work seamlessly with AI coding assistants. The JSON output mode and structured commands make it easy for AI agents to discover, build, and test iOS/macOS projects.
 
-## Claude Code Plugin
+## Claude Code
 
-FlowDeck provides a plugin for Claude Code that teaches it how to build, run, test, and debug iOS/macOS apps. The plugin includes:
+FlowDeck provides an official plugin for Claude Code that teaches it how to build, run, test, and debug iOS/macOS apps.
 
-- **Skill**: Teaches Claude about FlowDeck commands and workflows
-- **Hook**: Blocks direct use of xcodebuild/simctl and suggests FlowDeck equivalents
-
-### Installing the Plugin
-
-In Claude Code, run:
+### Install the Plugin
 
 ```
 /plugin marketplace add flowdeck-studio/flowdeck-plugin
 /plugin install flowdeck@flowdeck-studio-flowdeck-plugin
 ```
 
-Or install directly:
+Or install directly from GitHub:
 
 ```
 /plugin install https://github.com/flowdeck-studio/flowdeck-plugin
@@ -46,9 +41,7 @@ Just ask Claude Code to work with your iOS/macOS project:
 "Debug why the login screen isn't working"
 ```
 
-Claude Code will automatically invoke FlowDeck commands with the correct parameters.
-
-### Uninstalling
+### Uninstall
 
 ```
 /plugin uninstall flowdeck
@@ -56,260 +49,9 @@ Claude Code will automatically invoke FlowDeck commands with the correct paramet
 
 ---
 
-## Manual CLI Usage
+## Other AI Agents
 
-If you're integrating FlowDeck with other AI agents or automation tools, use the CLI directly with JSON output mode.
-
-### Project Discovery
-
-AI agents should always start by discovering the project structure:
-
-```bash
-flowdeck context --json
-```
-
-This returns essential project metadata:
-
-```json
-{
-  "workspace": "MyApp.xcworkspace",
-  "schemes": ["MyApp", "MyAppTests", "MyAppUITests"],
-  "buildConfigurations": ["Debug", "Release"],
-  "simulators": [
-    {
-      "udid": "12345678-1234-1234-1234-123456789ABC",
-      "name": "iPhone 16 Pro",
-      "platform": "iOS",
-      "os": "iOS 18.0",
-      "state": "Shutdown"
-    }
-  ]
-}
-```
-
-### JSON Output Mode
-
-All major commands support `--json` for machine-readable output:
-
-```bash
-# Build with JSON output
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
-
-# Test with JSON output
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
-
-# List simulators as JSON
-flowdeck simulator list --json
-
-# Discover tests as JSON
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
-```
-
-### Recommended Workflow
-
-#### 1. Discover Project
-
-```bash
-cd /path/to/project
-flowdeck context --json
-```
-
-#### 2. Build the Project
-
-```bash
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
-```
-
-#### 3. Run Tests
-
-```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
-```
-
-#### 4. Run the App
-
-```bash
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
-```
-
-### Error Handling
-
-FlowDeck provides structured error output in JSON mode:
-
-```json
-{"type":"app_log","level":"error","message":"Build failed: Missing provisioning profile"}
-```
-
-#### Exit Codes
-
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `1` | Failure |
-
-AI agents should check the exit code and parse error messages from JSON output.
-
----
-
-## Best Practices for AI Agents
-
-### Always Use Full Paths
-
-```bash
-# Specify full workspace path
-flowdeck build --workspace /Users/dev/MyApp/MyApp.xcworkspace --simulator "iPhone 16"
-```
-
-### Handle Platform Selection
-
-```bash
-# iOS simulator
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
-
-# macOS (no simulator)
-flowdeck build --workspace MyApp.xcworkspace --simulator none
-```
-
-### Parse JSON Safely
-
-JSON output is newline-delimited (NDJSON). Parse each line separately:
-
-```python
-import json
-import subprocess
-
-result = subprocess.run(
-    ["flowdeck", "build", "--workspace", "MyApp.xcworkspace",
-     "--simulator", "iPhone 16", "--json"],
-    capture_output=True, text=True
-)
-
-for line in result.stdout.strip().split('\n'):
-    if line:
-        event = json.loads(line)
-        print(f"Event: {event.get('type')} - {event.get('message')}")
-```
-
-### Test Discovery
-
-Before running specific tests, discover available tests:
-
-```bash
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
-```
-
-This helps AI agents suggest correct test identifiers.
-
-## Example AI Agent Session
-
-```
-User: Build and run my iOS app
-
-AI Agent:
-1. $ flowdeck context --json
-   → Discovered: MyApp.xcworkspace, scheme: MyApp
-
-2. $ flowdeck simulator list --platform iOS --available-only --json
-   → Found: iPhone 16 Pro (available)
-
-3. $ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16 Pro" --json
-   → Build succeeded
-
-4. $ flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16 Pro"
-   → App launched on simulator
-
-✅ App is now running on iPhone 16 Pro simulator
-```
-
----
-
-## Configuring Other AI Agents
-
-For AI coding assistants that don't support Claude Code plugins (like Cursor, Windsurf, Cline, or Copilot), you can configure them to use FlowDeck by adding instructions to your project's rules file.
-
-### Cursor
-
-Create or edit `.cursor/rules` in your project root:
-
-```markdown
-# iOS/macOS Development Rules
-
-When working with iOS or macOS projects, use FlowDeck CLI instead of xcodebuild, xcrun simctl, or xcrun devicectl.
-
-## Build Commands
-
-- **Build**: `flowdeck build --workspace PATH --simulator "NAME" --json`
-- **Run**: `flowdeck run --workspace PATH --simulator "NAME" --json`
-- **Test**: `flowdeck test --workspace PATH --simulator "NAME" --json`
-- **Clean**: `flowdeck clean --workspace PATH --scheme NAME`
-
-## Project Discovery
-
-Always start by discovering the project structure:
-```bash
-flowdeck context --json
-```
-
-This returns the workspace path, available schemes, build configurations, and simulators.
-
-## Simulator Management
-
-- **List simulators**: `flowdeck simulator list --json`
-- **Boot simulator**: `flowdeck simulator boot UDID`
-- **Take screenshot**: `flowdeck simulator screenshot UDID`
-
-## App Management
-
-After running an app:
-- **List running apps**: `flowdeck apps --json`
-- **Stream logs**: `flowdeck logs APP_ID`
-- **Stop app**: `flowdeck stop APP_ID`
-
-## Key Parameters
-
-- Use `--simulator "iPhone 16"` for iOS builds
-- Use `--simulator none` for macOS builds
-- Always use `--json` flag for parsing output programmatically
-```
-
-### Windsurf
-
-Create `.windsurfrules` in your project root with similar content.
-
-### Generic AI Agent Prompt
-
-For any AI assistant, you can add this to your system prompt or project instructions:
-
-```
-For iOS/macOS development tasks, use FlowDeck CLI instead of xcodebuild:
-
-1. Discover project: flowdeck context --json
-2. Build: flowdeck build --workspace PATH --simulator "NAME" --json
-3. Run: flowdeck run --workspace PATH --simulator "NAME" --json
-4. Test: flowdeck test --workspace PATH --simulator "NAME" --json
-
-Use --simulator "iPhone 16" for iOS or --simulator none for macOS.
-Always use --json for machine-readable output.
-```
-
-### Why Use FlowDeck Instead of xcodebuild?
-
-| Feature | FlowDeck | xcodebuild/simctl |
-|---------|----------|-------------------|
-| **Output** | Structured JSON | Verbose text |
-| **Errors** | Clear error codes | Cryptic messages |
-| **Simulators** | Simple name matching | Requires UDID lookup |
-| **Logs** | Unified log streaming | Separate console access |
-| **Screenshots** | One command | Multiple steps |
-| **Discovery** | `context --json` | Parse multiple files |
-
-FlowDeck abstracts away the complexity of Apple's fragmented tooling, making it much easier for AI agents to reliably build and test iOS/macOS apps.
-
----
-
-## FlowDeck Skill for Other AI Agents
-
-For AI tools that don't support Claude Code plugins (Cursor, Windsurf, Cline, Copilot, etc.), download the FlowDeck skill and reference it in your project:
+For AI coding assistants like Cursor, Windsurf, Cline, Copilot, or others, add the FlowDeck skill to your project.
 
 ### 1. Download the Skill
 
@@ -317,18 +59,39 @@ For AI tools that don't support Claude Code plugins (Cursor, Windsurf, Cline, Co
 curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main/skills/flowdeck/SKILL.md -o FLOWDECK.md
 ```
 
-### 2. Reference in AGENTS.md
+### 2. Add to Your Project Rules
 
-Add this line to your `AGENTS.md` (or create one):
+**For most agents** (AGENTS.md, CLAUDE.md, or similar):
 
 ```markdown
 @import FLOWDECK.md
 ```
 
-Or for Cursor, add to `.cursor/rules`:
+**For Cursor** (.cursor/rules):
 
 ```markdown
 @import ../FLOWDECK.md
 ```
 
-The skill teaches AI agents how to build, run, test, and debug iOS/macOS apps using FlowDeck instead of Apple's CLI tools.
+**For Windsurf** (.windsurfrules):
+
+```markdown
+@import FLOWDECK.md
+```
+
+That's it. The skill teaches your AI agent how to use FlowDeck for building, running, testing, and debugging iOS/macOS apps.
+
+---
+
+## Why FlowDeck?
+
+| Feature | FlowDeck | xcodebuild/simctl |
+|---------|----------|-------------------|
+| **Output** | Structured JSON | Verbose text |
+| **Errors** | Clear messages | Cryptic output |
+| **Simulators** | Simple name matching | Requires UDID lookup |
+| **Logs** | Unified streaming | Separate console |
+| **Screenshots** | One command | Multiple steps |
+| **Discovery** | `context --json` | Parse multiple files |
+
+FlowDeck abstracts away the complexity of Apple's fragmented tooling, making it much easier for AI agents to reliably build and test iOS/macOS apps.
