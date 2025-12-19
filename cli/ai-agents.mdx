@@ -53,6 +53,10 @@ Just ask Claude Code to work with your iOS/macOS project:
 
 For AI coding assistants like Cursor, Windsurf, Cline, Copilot, or others, add the FlowDeck skill to your project.
 
+<Note>
+The Claude Code plugin includes a hook that actively blocks attempts to use xcodebuild/simctl, ensuring the agent always uses FlowDeck. Other agents receive the skill instructions but may occasionally fall back to Apple's tools.
+</Note>
+
 ### 1. Download the Skill
 
 ```bash
