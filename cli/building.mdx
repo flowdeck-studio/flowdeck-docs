@@ -22,12 +22,28 @@ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 
 ### Build for macOS
 
-Use `--simulator none` for macOS targets:
+Use `--device "My Mac"` for macOS targets:
 
 ```bash
-# Stateless buid
-flowdeck build --workspace MyApp.xcworkspace --simulator none
+flowdeck build --workspace MyApp.xcworkspace --device "My Mac"
 ```
+
+### Build for Physical Device
+
+Use `--device` with the device name or UDID:
+
+```bash
+# By device name (partial match, case-insensitive)
+flowdeck build --workspace MyApp.xcworkspace --device "iPhone"
+flowdeck build --workspace MyApp.xcworkspace --device "John's iPhone"
+
+# By device UDID (exact match)
+flowdeck build --workspace MyApp.xcworkspace --device "00008130-001245110C08001C"
+```
+
+<Tip>
+Use `flowdeck device list` to see available devices and their UDIDs.
+</Tip>
 
 ### Build Configurations
 
@@ -51,7 +67,7 @@ flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 
 
 ## Running Your App
 
-### Build and Run
+### Build and Run on Simulator
 
 ```bash
 flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
@@ -64,6 +80,18 @@ This command:
 3. Boots the simulator (or uses already running)
 4. Installs the app
 5. Launches the app
+
+### Build and Run on macOS
+
+```bash
+flowdeck run --workspace MyApp.xcworkspace --device "My Mac"
+```
+
+### Build and Run on Physical Device
+
+```bash
+flowdeck run --workspace MyApp.xcworkspace --device "John's iPhone"
+```
 
 ### Run with Log Streaming
 

@@ -11,8 +11,15 @@ Build an Xcode project or workspace for simulator, macOS, or physical device.
 # Build for iOS simulator
 flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 
-# Build for macOS (no simulator)
-flowdeck build --workspace MyApp.xcworkspace --simulator none
+# Build for macOS
+flowdeck build --workspace MyApp.xcworkspace --device "My Mac"
+
+# Build for physical device (by name - partial match)
+flowdeck build --workspace MyApp.xcworkspace --device "iPhone"
+flowdeck build --workspace MyApp.xcworkspace --device "John's iPhone"
+
+# Build for physical device (by UDID)
+flowdeck build --workspace MyApp.xcworkspace --device "00008130-001245110C08001C"
 
 # Release configuration
 flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configuration Release
@@ -29,7 +36,8 @@ flowdeck build --config .flowdeck/state.json
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
+| `--simulator <name>` | `-S` | Target simulator name or UDID |
+| `--device <name>` | `-D` | Physical device name/UDID, or "My Mac" for macOS |
 | `--scheme <name>` | `-s` | Build scheme name (auto-detected if only one) |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
 | `--project <path>` | `-p` | Project directory (defaults to current directory) |
@@ -39,8 +47,17 @@ flowdeck build --config .flowdeck/state.json
 | `--verbose` | `-v` | Show full xcodebuild output (default: progress only) |
 
 <Note>
-The `--simulator` parameter is required. Use `--simulator none` for macOS builds.
+Either `--simulator` or `--device` must be provided:
+- Use `--simulator` for iOS/tvOS/watchOS simulators
+- Use `--device "My Mac"` (or `"mac"`, `"macOS"`) for macOS builds
+- Use `--device "<name>"` or `--device "<UDID>"` for physical devices
 </Note>
+
+### Device Matching
+
+When using `--device`, FlowDeck supports:
+- **UDID**: Exact match (case-sensitive)
+- **Name**: Partial match (case-insensitive), e.g., `"iPhone"` matches `"John's iPhone"`
 
 ### Config File Format
 
@@ -117,7 +134,10 @@ Build and launch the app on a simulator, macOS, or physical device.
 flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
 
 # Run on macOS
-flowdeck run --workspace MyApp.xcworkspace --simulator none
+flowdeck run --workspace MyApp.xcworkspace --device "My Mac"
+
+# Run on physical device
+flowdeck run --workspace MyApp.xcworkspace --device "John's iPhone"
 
 # Run with log streaming
 flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --log
@@ -134,7 +154,8 @@ flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --wait-for-de
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
+| `--simulator <name>` | `-S` | Target simulator name or UDID |
+| `--device <name>` | `-D` | Physical device name/UDID, or "My Mac" for macOS |
 | `--scheme <name>` | `-s` | Build scheme name |
 | `--configuration <name>` | `-C` | Build configuration |
 | `--project <path>` | `-p` | Project directory |
@@ -145,6 +166,10 @@ flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --wait-for-de
 | `--interactive` | `-i` | Interactive mode: R to rebuild, C to clean+rebuild, Q to quit |
 | `--json` | `-j` | Output JSON events |
 | `--verbose` | `-v` | Show app console output (default: suppressed) |
+
+<Note>
+Either `--simulator` or `--device` must be provided (same as build command).
+</Note>
 
 ### After Launching
 

@@ -49,30 +49,6 @@ flowdeck device list --json
 
 ---
 
-## flowdeck device select
-
-Interactively select a physical device for the current project.
-
-```bash
-# Interactive selection
-flowdeck device select
-
-# Filter to iOS devices only
-flowdeck device select --platform iOS
-
-# Select for a specific project
-flowdeck device select --project /path/to/project
-```
-
-### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--platform <name>` | `-P` | Filter by platform |
-
----
-
 ## flowdeck device install
 
 Install an app bundle (.app) on a physical device.

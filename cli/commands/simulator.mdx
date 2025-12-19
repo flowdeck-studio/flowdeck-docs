@@ -49,35 +49,6 @@ flowdeck simulator list --json
 
 ---
 
-## flowdeck simulator select
-
-Interactively select a simulator for the current project. Supports non-interactive selection for CI/CD.
-
-```bash
-# Interactive selection
-flowdeck simulator select
-
-# Select by name (partial match supported)
-flowdeck simulator select --name "iPhone 16"
-
-# Select by exact UDID
-flowdeck simulator select --udid 12345678-ABCD-EFGH-1234-567890ABCDEF
-
-# Filter to specific platform
-flowdeck simulator select --platform tvOS
-```
-
-### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--platform <name>` | `-P` | Filter by platform |
-| `--name <name>` | `-n` | Select simulator by name (non-interactive) |
-| `--udid <udid>` | `-u` | Select simulator by UDID (non-interactive) |
-
----
-
 ## flowdeck simulator boot
 
 Boot a simulator so it's ready to run apps.
