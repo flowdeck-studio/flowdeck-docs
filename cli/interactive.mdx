@@ -14,6 +14,10 @@ flowdeck -i
 
 On first run, the interactive mode will guide you through a setup assistant to configure your workspace, scheme, and target.
 
+## Example Session
+
+![Clean Shot2025 12 17at18 39 48@2x](/images/CleanShot2025-12-17at18.39.48@2x.png)
+
 ## Status Bar
 
 The bottom of the terminal displays a persistent status bar showing:
@@ -28,14 +32,14 @@ The bottom of the terminal displays a persistent status bar showing:
 
 ### Execution Commands
 
-| Key | Action                                 |
-| --- | -------------------------------------- |
-| `B` | Build the project                      |
-| `R` | Build and Run                          |
-| `K` | Clean build artifacts                  |
-| `U` | Run tests                              |
-| `X` | Stop running app                       |
-| `L` | Toggle log/test viewer (context-aware) |
+| Key | Action                                                    |
+| --- | --------------------------------------------------------- |
+| `B` | Build the project                                         |
+| `R` | Build and Run in the selected simulator or device         |
+| `K` | Clean build artifacts                                     |
+| `U` | Run Tests menu                                            |
+| `X` | Stop running app                                          |
+| `L` | Toggle log/test viewer (available when an app is running) |
 
 ### Configuration Commands
 
@@ -46,10 +50,9 @@ The bottom of the terminal displays a persistent status bar showing:
 | `C` | Select configuration (Debug/Release)                    |
 | `D` | Show devices and simulators                             |
 | `P` | Platform management menu                                |
-| `O` | Xcode menu (open, clean caches)                         |
-| `G` | AI agent integration menu                               |
+| `O` | Xcode menu (open, clean caches, clean derived-data)     |
 | `I` | License management                                      |
-| `W` | Save current config to file                             |
+| `W` | Save current configuration to file                      |
 | `M` | Switch to other workspaces in your folder or subfolders |
 
 ### Navigation
@@ -80,17 +83,9 @@ When you press `U` to run tests, you can choose:
 
 Press `S` or `T` to interactively select from available schemes, simulators, or connected devices. Your selection is saved for future sessions.
 
-### AI Agent Integration
-
-Press `G` to access the AI agent integration menu, which helps configure FlowDeck for use with Claude Code and other AI assistants.
-
-## Example Session
-
-![Clean Shot2025 12 17at18 39 48@2x](/images/CleanShot2025-12-17at18.39.48@2x.png)
-
 ## State Persistence
 
-Interactive mode saves your configuration to `.flowdeck/state.json`:
+Interactive mode saves your configuration to your home holder to avoid having to configure the CLI every time. 
 
 - Workspace path
 - Selected scheme
@@ -101,15 +96,21 @@ Interactive mode saves your configuration to `.flowdeck/state.json`:
 
 This state persists across sessions, so you can quit and resume without reconfiguring.
 
+## Saving Configuration to a file
+
+You can store your current configuration, use the `W` shortcut to use it via CLI commands.
+
+You can directly run commands with a pre-defined configuration by passing the `--config` option
+
+```bash
+flowdeck build --config your_config.json
+```
+
 ## Tips
 
 <Tip>
   Use `ESC` during a build or test run to cancel the operation.
 </Tip>
-
-<Note>
-  Use 'W' to save your current configuration and use it directly via the standard CLI --config
-</Note>
 
 ## Exiting
 
