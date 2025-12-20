@@ -122,6 +122,13 @@
             ]
           },
           {
+            "group": "Advanced",
+            "pages": [
+              "cli/ci-cd",
+              "cli/advanced-build-settings"
+            ]
+          },
+          {
             "group": "Support",
             "pages": [
               "cli/support"

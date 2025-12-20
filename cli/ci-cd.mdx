@@ -1,0 +1,316 @@
+---
+title: "CI/CD Integration"
+description: "Run FlowDeck in continuous integration and deployment pipelines"
+---
+
+FlowDeck CLI is designed to work seamlessly in CI/CD environments like GitHub Actions, GitLab CI, CircleCI, Bitrise, and other automation platforms.
+
+## License Configuration
+
+In CI environments, FlowDeck validates your license through an environment variable instead of machine activation. This approach:
+
+- Does not consume activation slots
+- Works across ephemeral CI runners
+- Requires no persistent storage
+
+<Warning>
+  Using your license as an environment variable does not count against your activation limit, but this functionality is restricted to **CI/CD environments only**. For local development, you must activate the license using `flowdeck license activate <key>`.
+</Warning>
+
+### Setting the License Key
+
+Set the `FLOWDECK_LICENSE_KEY` environment variable in your CI configuration:
+
+<CodeGroup>
+```yaml GitHub Actions
+env:
+  FLOWDECK_LICENSE_KEY: ${{ secrets.FLOWDECK_LICENSE_KEY }}
+```
+
+```yaml GitLab CI
+variables:
+  FLOWDECK_LICENSE_KEY: $FLOWDECK_LICENSE_KEY
+```
+
+```yaml CircleCI
+environment:
+  FLOWDECK_LICENSE_KEY: $FLOWDECK_LICENSE_KEY
+```
+
+```yaml Bitrise
+envs:
+  - FLOWDECK_LICENSE_KEY: $FLOWDECK_LICENSE_KEY
+```
+</CodeGroup>
+
+<Tip>
+  Store your license key as a secret in your CI platform. Never commit license keys to version control.
+</Tip>
+
+### Supported CI Platforms
+
+FlowDeck automatically detects these CI environments:
+
+| Platform | Detection Variable |
+|----------|-------------------|
+| GitHub Actions | `GITHUB_ACTIONS` |
+| GitLab CI | `GITLAB_CI` |
+| CircleCI | `CIRCLECI` |
+| Jenkins | `JENKINS_URL` |
+| Travis CI | `TRAVIS` |
+| Bitrise | `BITRISE_IO` |
+| Buildkite | `BUILDKITE` |
+| TeamCity | `TEAMCITY_VERSION` |
+| Azure Pipelines | `TF_BUILD` |
+| AWS CodeBuild | `CODEBUILD_BUILD_ID` |
+| Xcode Cloud | `XCODE_CLOUD` |
+| Codemagic | `CODEMAGIC` |
+| Appcircle | `APPCIRCLE` |
+| Bitbucket Pipelines | `BITBUCKET_BUILD_NUMBER` |
+| Semaphore CI | `SEMAPHORE` |
+| Drone CI | `DRONE` |
+| AppVeyor | `APPVEYOR` |
+
+For other CI systems, set `CI=true` along with your license key.
+
+## Installing FlowDeck in CI
+
+### Using the Install Script
+
+```bash
+curl -fsSL https://flowdeck.studio/install.sh | bash
+```
+
+### GitHub Actions Example
+
+```yaml
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    env:
+      FLOWDECK_LICENSE_KEY: ${{ secrets.FLOWDECK_LICENSE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FlowDeck
+        run: curl -fsSL https://flowdeck.studio/install.sh | bash
+
+      - name: Build
+        run: |
+          flowdeck build \
+            --workspace MyApp.xcworkspace \
+            --scheme MyApp \
+            --simulator "iPhone 16" \
+            --json
+
+      - name: Test
+        run: |
+          flowdeck test \
+            --workspace MyApp.xcworkspace \
+            --scheme MyApp \
+            --simulator "iPhone 16" \
+            --json
+```
+
+## Configuration File
+
+For reproducible CI builds, use a configuration file instead of command-line arguments:
+
+### Create a Config File
+
+Create `.flowdeck/ci-config.json` in your repository:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Release",
+  "platform": "iOS",
+  "version": "18.0",
+  "xcodebuild": {
+    "args": ["-enableCodeCoverage", "YES"],
+    "env": {
+      "CI": "true"
+    }
+  }
+}
+```
+
+### Use in CI
+
+```bash
+flowdeck build --config .flowdeck/ci-config.json --json
+flowdeck test --config .flowdeck/ci-config.json --json
+```
+
+### Config File Reference
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `workspace` | string | **Yes** | Path to `.xcworkspace` or `.xcodeproj` |
+| `scheme` | string | **Yes** | Scheme name to build |
+| `configuration` | string | No | Build configuration (`Debug`/`Release`). Default: `Debug` |
+| `platform` | string | No | Target platform: `iOS`, `macOS`, `watchOS`, `tvOS`, `visionOS` |
+| `version` | string | No | OS version (e.g., `18.0`). Uses latest if not specified |
+| `simulatorUdid` | string | No | Specific simulator UDID |
+| `derivedDataPath` | string | No | Custom derived data path |
+| `xcodebuild` | object | No | Passthrough settings for xcodebuild |
+| `xcodebuild.args` | array | No | Arguments appended to xcodebuild |
+| `xcodebuild.env` | object | No | Environment variables for xcodebuild |
+
+<Info>
+  See [Advanced Build Settings](/cli/advanced-build-settings) for complete xcodebuild passthrough options.
+</Info>
+
+## JSON Output
+
+Always use `--json` in CI for machine-readable output:
+
+```bash
+flowdeck build --config .flowdeck/ci-config.json --json
+```
+
+This outputs NDJSON (newline-delimited JSON) events that can be parsed by CI tools:
+
+```json
+{"type":"app_log","level":"info","message":"Build Started"}
+{"type":"app_log","level":"info","message":"Resolving Packages"}
+{"type":"app_log","level":"info","message":"Building"}
+{"type":"result","operation":"build","success":true}
+```
+
+### Parsing Results
+
+```bash
+# Check if build succeeded
+flowdeck build --config .flowdeck/ci-config.json --json | \
+  jq -s 'last | select(.success == true)' && echo "Build passed"
+
+# Extract errors
+flowdeck build --config .flowdeck/ci-config.json --json | \
+  jq 'select(.level == "error")'
+```
+
+## Simulator Management in CI
+
+### Boot a Specific Simulator
+
+```bash
+# List available simulators
+flowdeck simulator list --platform iOS --available-only --json
+
+# Boot by name
+flowdeck simulator boot "iPhone 16"
+
+# Boot by UDID (more reliable in CI)
+flowdeck simulator boot "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+```
+
+### Create a Simulator (if needed)
+
+```bash
+flowdeck simulator create "CI-iPhone" --device-type "iPhone 16" --runtime "iOS 18.0"
+```
+
+## Best Practices
+
+### 1. Use Configuration Files
+
+Store build settings in version-controlled config files for reproducibility:
+
+```bash
+flowdeck build --config .flowdeck/ci-config.json --json
+```
+
+### 2. Always Use JSON Mode
+
+Machine-readable output is essential for CI parsing and error detection:
+
+```bash
+flowdeck build ... --json
+flowdeck test ... --json
+```
+
+### 3. Specify Simulator by UDID
+
+Simulator names can vary across CI runners. Use UDIDs for consistency:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "simulatorUdid": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+Or resolve dynamically:
+
+```bash
+# Get the first available iPhone 16 simulator UDID
+SIMULATOR_UDID=$(flowdeck simulator list --platform iOS --json | \
+  jq -r '.[] | select(.name | contains("iPhone 16")) | .udid' | head -1)
+
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "$SIMULATOR_UDID"
+```
+
+### 4. Clean Before Release Builds
+
+```bash
+flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
+flowdeck build --config .flowdeck/release-config.json --json
+```
+
+### 5. Use Derived Data Paths
+
+Avoid conflicts with concurrent builds:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "derivedDataPath": "/tmp/flowdeck-derived-data"
+}
+```
+
+## Troubleshooting
+
+### "License validation failed"
+
+Ensure `FLOWDECK_LICENSE_KEY` is set correctly:
+
+```bash
+# Check if variable is set
+echo $FLOWDECK_LICENSE_KEY
+
+# Verify CI detection
+flowdeck license status
+```
+
+### "Simulator not found"
+
+List available simulators and use exact names or UDIDs:
+
+```bash
+flowdeck simulator list --platform iOS --available-only --json
+```
+
+### Build Timeout
+
+Increase timeout for large projects:
+
+```yaml
+# GitHub Actions
+- name: Build
+  timeout-minutes: 30
+  run: flowdeck build --config .flowdeck/ci-config.json --json
+```
