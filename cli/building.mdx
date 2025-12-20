@@ -17,7 +17,7 @@ FlowDeck CLI provides powerful build and run capabilities optimized for command-
 
 ```bash
 # Stateless build (requires workspace, scheme, and target)
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 ### Build for macOS
@@ -25,7 +25,7 @@ flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 Use `--device "My Mac"` for macOS targets:
 
 ```bash
-flowdeck build -w MyApp.xcworkspace -s MyApp -D "My Mac"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "My Mac"
 ```
 
 ### Build for Physical Device
@@ -34,11 +34,11 @@ Use `--device` with the device name or UDID:
 
 ```bash
 # By device name (partial match, case-insensitive)
-flowdeck build -w MyApp.xcworkspace -s MyApp -D "iPhone"
-flowdeck build -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "iPhone"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "John's iPhone"
 
 # By device UDID (exact match)
-flowdeck build -w MyApp.xcworkspace -s MyApp -D "00008130-001245110C08001C"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "00008130-001245110C08001C"
 ```
 
 <Tip>
@@ -51,18 +51,18 @@ Specify Debug or Release configuration:
 
 ```bash
 # Debug build (default)
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" -C Debug
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --configuration Debug
 
 # Release build
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" -C Release
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --configuration Release
 ```
 
 ### Scheme Selection
 
-The `--scheme` (`-s`) parameter specifies which scheme to build:
+The `--scheme` parameter specifies which scheme to build:
 
 ```bash
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 <Tip>
@@ -78,7 +78,7 @@ For the complete list of build options, see the [Build Command Reference](/cli/c
 ### Build and Run on Simulator
 
 ```bash
-flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 This command:
@@ -92,13 +92,13 @@ This command:
 ### Build and Run on macOS
 
 ```bash
-flowdeck run -w MyApp.xcworkspace -s MyApp -D "My Mac"
+flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --device "My Mac"
 ```
 
 ### Build and Run on Physical Device
 
 ```bash
-flowdeck run -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
+flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --device "John's iPhone"
 ```
 
 <Info>
@@ -110,7 +110,7 @@ For the complete list of run options including `--interactive` and `--wait-for-d
 Stream OSLog output after launching:
 
 ```bash
-flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --log
+flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --log
 ```
 
 ### Example Output
@@ -136,7 +136,7 @@ flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --log
 Use `--json` for machine-readable output:
 
 ```bash
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --json
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json
 ```
 
 This outputs NDJSON (newline-delimited JSON) events:
@@ -152,10 +152,10 @@ This outputs NDJSON (newline-delimited JSON) events:
 
 ```bash
 # Get build status
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --json | jq -s 'last'
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json | jq -s 'last'
 
 # Check for errors
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --json | jq 'select(.level == "error")'
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json | jq 'select(.level == "error")'
 ```
 
 ## Custom Derived Data
@@ -163,7 +163,7 @@ flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --json | jq 'select(
 Specify a custom derived data path to avoid conflicts with Xcode:
 
 ```bash
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" \
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" \
   --derived-data-path ~/FlowDeck/DerivedData
 ```
 
@@ -172,8 +172,8 @@ flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" \
 Clean build artifacts before rebuilding:
 
 ```bash
-flowdeck clean -w MyApp.xcworkspace -s MyApp
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 ## Performance Optimization
@@ -192,11 +192,11 @@ Ensure you're specifying the correct path:
 
 ```bash
 # Use full path if needed
-flowdeck build -w /path/to/MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck build --workspace /path/to/MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 
 # Or navigate to the project directory first
 cd ~/Projects/MyApp
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 ### "Scheme not found"
@@ -220,8 +220,8 @@ flowdeck simulator list --platform iOS --available-only
 Try cleaning and rebuilding:
 
 ```bash
-flowdeck clean -w MyApp.xcworkspace -s MyApp
-flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
 Check the error output for specific issues like missing dependencies or code signing problems.
