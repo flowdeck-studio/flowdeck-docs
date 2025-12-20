@@ -5,15 +5,19 @@ description: "Build and run iOS/macOS apps from the command line"
 
 FlowDeck CLI provides powerful build and run capabilities optimized for command-line workflows and CI/CD integration.
 
+## Project context
+
+The `context` command gives you (or your AI agent) everything needed to understand your project at a glance. Available schemes, build configurations, simulators, and connected devices.
+
+```bash
+# Get app context
+flowdeck context 
+
+# Also avavilable in JSON output
+flowdeck context --json
+```
+
 ## Building Your App
-
-<Tip>
-  Use the `--config` option to pass a set of pre-defined parameters from a JSON file. This is especially useful for CI/CD pipelines and complex build configurations.
-
-  To generate a config file, use the `W` (Write Config) option in FlowDeck interactive mode.
-
-  See [Advanced Build Settings](/cli/advanced-build-settings) for the complete configuration file reference.
-</Tip>
 
 ### Basic Build
 
@@ -67,10 +71,6 @@ The `--scheme` parameter specifies which scheme to build:
 flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
 
-<Tip>
-  Use `flowdeck context --json` to discover available schemes in your workspace.
-</Tip>
-
 <Info>
   For the complete list of build options, see the [Build Command Reference](/cli/commands/build).
 </Info>
@@ -115,24 +115,6 @@ Stream OSLog output after launching:
 flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --log
 ```
 
-### Example Output
-
-```
-🔨 Building MyApp for simulator...
-✅ Build succeeded!
-
-📱 Opening Simulator.app...
-📱 Booting simulator (12345678-1234-1234-1234-123456789ABC)...
-✓ Simulator ready
-📦 Installing app on simulator...
-🚀 Launching com.example.MyApp...
-
-✅ App launched successfully!
-💡 Process ID (PID): 54321
-💡 Bundle ID: com.example.MyApp
-💡 Simulator: 12345678-1234-1234-1234-123456789ABC
-```
-
 ## JSON Output for Automation
 
 Use `--json` for machine-readable output, essential for CI/CD pipelines:
@@ -154,16 +136,6 @@ This outputs NDJSON (newline-delimited JSON) events:
 {"type":"app_log","message":"Build Completed"}
 ```
 
-### Parsing JSON Output
-
-```bash
-# Get build status
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json | jq -s 'last'
-
-# Check for errors
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json | jq 'select(.level == "error")'
-```
-
 ## Custom Derived Data
 
 Specify a custom derived data path to avoid conflicts with Xcode:
@@ -181,6 +153,19 @@ Clean build artifacts before rebuilding:
 flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
 flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
 ```
+
+## Pre-defined configuration
+
+Use the `--config` option to pass a set of pre-defined parameters from a JSON file. This is especially useful for CI/CD pipelines and complex build configurations.
+
+To generate a config file, use the `W` (Write Config) option in FlowDeck interactive mode.
+
+```bash
+# Build your app with a JSON config
+flowdeck build --config ios.json
+```
+
+See [Advanced Build Settings](/cli/advanced-build-settings) for the complete configuration file reference.
 
 ## Performance Optimization
 
