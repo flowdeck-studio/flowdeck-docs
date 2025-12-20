@@ -11,14 +11,14 @@ FlowDeck provides an official plugin for Claude Code that teaches it how to buil
 
 ### Install the Plugin
 
-```
+```bash
 /plugin marketplace add flowdeck-studio/flowdeck-plugin
 /plugin install flowdeck@flowdeck-studio-flowdeck-plugin
 ```
 
 Or install directly from GitHub:
 
-```
+```bash
 /plugin install https://github.com/flowdeck-studio/flowdeck-plugin
 ```
 
@@ -35,15 +35,15 @@ Once installed, Claude Code will automatically:
 Just ask Claude Code to work with your iOS/macOS project:
 
 ```
-"Build and run my app on an iPhone simulator"
+"Build and run my app on an iPhone 11 simulator"
 "Run the unit tests and fix any failures"
 "Take a screenshot of the current simulator state"
-"Debug why the login screen isn't working"
+"Run the app and check logs to understand why the login screen isn't working"
 ```
 
 ### Uninstall
 
-```
+```bash
 /plugin uninstall flowdeck
 ```
 
@@ -54,7 +54,7 @@ Just ask Claude Code to work with your iOS/macOS project:
 For AI coding assistants like Cursor, Windsurf, Cline, Copilot, or others, add the FlowDeck skill to your project.
 
 <Note>
-The Claude Code plugin includes a hook that actively blocks attempts to use xcodebuild/simctl, ensuring the agent always uses FlowDeck. Other agents receive the skill instructions but may occasionally fall back to Apple's tools.
+  The Claude Code plugin includes a hook that actively blocks attempts to use xcodebuild/simctl, ensuring the agent always uses FlowDeck. Other agents receive the skill instructions but may occasionally fall back to Apple's tools.
 </Note>
 
 ### 1. Download the Skill
@@ -67,7 +67,7 @@ curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main
 
 **For most agents** (AGENTS.md or similar):
 
-```markdown
+```yaml
 @import FLOWDECK.md
 ```
 
@@ -89,13 +89,13 @@ That's it. The skill teaches your AI agent how to use FlowDeck for building, run
 
 ## Why FlowDeck?
 
-| Feature | FlowDeck | xcodebuild/simctl |
-|---------|----------|-------------------|
-| **Output** | Structured JSON | Verbose text |
-| **Errors** | Clear messages | Cryptic output |
-| **Simulators** | Simple name matching | Requires UDID lookup |
-| **Logs** | Unified streaming | Separate console |
-| **Screenshots** | One command | Multiple steps |
-| **Discovery** | `context --json` | Parse multiple files |
+| Feature         | FlowDeck             | xcodebuild/simctl    |
+| --------------- | -------------------- | -------------------- |
+| **Output**      | Structured JSON      | Verbose text         |
+| **Errors**      | Clear messages       | Cryptic output       |
+| **Simulators**  | Simple name matching | Requires UDID lookup |
+| **Logs**        | Unified streaming    | Separate console     |
+| **Screenshots** | One command          | Multiple steps       |
+| **Discovery**   | `context --json`     | Parse multiple files |
 
 FlowDeck abstracts away the complexity of Apple's fragmented tooling, making it much easier for AI agents to reliably build and test iOS/macOS apps.
