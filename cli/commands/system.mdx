@@ -304,3 +304,66 @@ curl -sSL https://flowdeck.studio/install.sh | sh
 ```
 </Note>
 
+---
+
+## Changelog Commands
+
+### flowdeck changelog
+
+Display the FlowDeck CLI changelog, showing the last 10 releases.
+
+```bash
+# Show all recent changes
+flowdeck changelog
+
+# Show changes for a specific version
+flowdeck changelog --release 1.2.0
+
+# JSON output
+flowdeck changelog --json
+```
+
+#### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--release <version>` | `-r` | Show changes for a specific version (e.g., 1.2.0) |
+| `--json` | `-j` | Output as JSON |
+
+#### Example Output
+
+```
+FlowDeck Changelog
+========================================
+
+Version 1.2.0 (2025-12-20)
+----------------------------------------
+  - Improved --help documentation and examples
+
+Version 1.1.5 (2025-12-20)
+----------------------------------------
+  - Add --dry-run flag to all commands for validation without execution
+  - Add --device option to build and run commands for physical device support
+```
+
+#### JSON Output
+
+```json
+{
+  "success": true,
+  "releases": [
+    {
+      "version": "1.2.0",
+      "date": "2025-12-20",
+      "changes": [
+        "Improved --help documentation and examples"
+      ]
+    }
+  ]
+}
+```
+
+<Note>
+If the specified version is not found, an error is returned with the list of available versions.
+</Note>
+
