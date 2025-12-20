@@ -59,7 +59,7 @@ You should see output like:
 
 ## License Activation
 
-FlowDeck CLI requires a valid license for full functionality.
+FlowDeck CLI requires a valid license for full functionality.  A license is valid for two (2) machines.
 
 ### Activate Your License
 
@@ -74,6 +74,10 @@ flowdeck license status
 ```
 
 ### CI/CD Usage
+
+<Note>
+  Using your license as an environment variable **does not count against your license limit**, but the functionality is restricted to CI/CD environments only (GitHub Actions, GitLab CI, CircleCI, Jenkins, etc.). 
+</Note>
 
 For CI/CD environments, set the license key as an environment variable instead of activating:
 
@@ -123,6 +127,10 @@ curl -sSL https://flowdeck.studio/install.sh | sh
 
 ## Uninstallation
 
+<Warning>
+  Before uninstalling, run `flowdeck license deactivate` to free up your license activation slot.
+</Warning>
+
 Remove the FlowDeck binary and configuration:
 
 ```bash
@@ -135,7 +143,3 @@ rm ~/.local/bin/flowdeck
 # Remove configuration files
 rm -rf ~/.flowdeck
 ```
-
-<Warning>
-  Before uninstalling, run `flowdeck license deactivate` to free up your license activation slot.
-</Warning>
