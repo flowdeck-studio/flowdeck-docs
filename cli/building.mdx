@@ -8,9 +8,11 @@ FlowDeck CLI provides powerful build and run capabilities optimized for command-
 ## Building Your App
 
 <Tip>
-  Use the --config option to pass a set of pre-defined parameters\
-  \
-  To generate a Configuration file, use the 'W' option in FlowDeck interactive mode
+  Use the `--config` option to pass a set of pre-defined parameters from a JSON file. This is especially useful for CI/CD pipelines and complex build configurations.
+
+  To generate a config file, use the `W` (Write Config) option in FlowDeck interactive mode.
+
+  See [Advanced Build Settings](/cli/advanced-build-settings) for the complete configuration file reference.
 </Tip>
 
 ### Basic Build
@@ -133,11 +135,15 @@ flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16
 
 ## JSON Output for Automation
 
-Use `--json` for machine-readable output:
+Use `--json` for machine-readable output, essential for CI/CD pipelines:
 
 ```bash
 flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json
 ```
+
+<Info>
+  For complete CI/CD setup including license configuration and pipeline examples, see [CI/CD Integration](/cli/ci-cd).
+</Info>
 
 This outputs NDJSON (newline-delimited JSON) events:
 
