@@ -37,7 +37,6 @@ flowdeck <command> [subcommand] [options]
 | Command | Alias | Description |
 |---------|-------|-------------|
 | `simulator list` | `sim list` | List available simulators |
-| `simulator select` | | Select simulator for project |
 | `simulator boot` | | Boot a simulator |
 | `simulator shutdown` | | Shutdown a simulator |
 | `simulator screenshot` | | Capture a screenshot |
@@ -54,7 +53,6 @@ flowdeck <command> [subcommand] [options]
 | Command | Alias | Description |
 |---------|-------|-------------|
 | `device list` | `dev list` | List connected devices |
-| `device select` | | Select device for project |
 | `device install` | | Install app on device |
 | `device uninstall` | | Remove app from device |
 | `device launch` | | Launch app on device |
@@ -98,7 +96,8 @@ Most commands support these options:
 | `--json` | `-j` | Output as JSON (for automation) |
 | `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
 | `--scheme <name>` | `-s` | Build scheme name |
-| `--simulator <name>` | `-S` | Simulator name/UDID or "none" for macOS |
+| `--simulator <name>` | `-S` | Simulator name/UDID |
+| `--device <name>` | `-D` | Physical device name/UDID, or "My Mac" for macOS |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
 | `--project <path>` | `-p` | Project directory |
 | `--verbose` | `-v` | Show detailed output |

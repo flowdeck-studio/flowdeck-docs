@@ -16,8 +16,8 @@ FlowDeck CLI provides powerful build and run capabilities optimized for command-
 ### Basic Build
 
 ```bash
-# Stateless buid
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+# Stateless build
+flowdeck build -w MyApp.xcworkspace -S "iPhone 16"
 ```
 
 ### Build for macOS
@@ -62,8 +62,12 @@ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configura
 If your project has multiple schemes:
 
 ```bash
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
+flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 ```
+
+<Info>
+For the complete list of build options, see the [Build Command Reference](/cli/commands/build).
+</Info>
 
 ## Running Your App
 
@@ -90,8 +94,12 @@ flowdeck run --workspace MyApp.xcworkspace --device "My Mac"
 ### Build and Run on Physical Device
 
 ```bash
-flowdeck run --workspace MyApp.xcworkspace --device "John's iPhone"
+flowdeck run -w MyApp.xcworkspace -D "John's iPhone"
 ```
+
+<Info>
+For the complete list of run options including `--interactive` and `--wait-for-debugger`, see the [Run Command Reference](/cli/commands/build#flowdeck-run).
+</Info>
 
 ### Run with Log Streaming
 
