@@ -9,23 +9,23 @@ Build an Xcode project or workspace for simulator, macOS, or physical device.
 
 ```bash
 # Build for iOS simulator
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
+flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 
 # Build for macOS
-flowdeck build --workspace MyApp.xcworkspace --device "My Mac"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "My Mac"
 
 # Build for physical device (by name - partial match)
-flowdeck build --workspace MyApp.xcworkspace --device "iPhone"
-flowdeck build --workspace MyApp.xcworkspace --device "John's iPhone"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "iPhone"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
 
 # Build for physical device (by UDID)
-flowdeck build --workspace MyApp.xcworkspace --device "00008130-001245110C08001C"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "00008130-001245110C08001C"
 
 # Release configuration
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --configuration Release
+flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" -C Release
 
 # JSON output for automation
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --json
 
 # Load settings from config file
 flowdeck build --config .flowdeck/state.json
@@ -131,22 +131,22 @@ Build and launch the app on a simulator, macOS, or physical device.
 
 ```bash
 # Build and run on iOS simulator
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16"
+flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 
 # Run on macOS
-flowdeck run --workspace MyApp.xcworkspace --device "My Mac"
+flowdeck run -w MyApp.xcworkspace -s MyApp -D "My Mac"
 
 # Run on physical device
-flowdeck run --workspace MyApp.xcworkspace --device "John's iPhone"
+flowdeck run -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
 
 # Run with log streaming
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --log
+flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --log
 
 # Interactive mode (R=rebuild, C=clean+rebuild, Q=quit)
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" -i
+flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16" -i
 
 # Wait for debugger to attach
-flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16" --wait-for-debugger
+flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16" --wait-for-debugger
 ```
 
 ### Options
