@@ -14,11 +14,55 @@ FlowDeck lets you pass arguments and environment variables to your app when it l
 
 | Method | Best For | Priority |
 |--------|----------|----------|
-| [CLI Flag](#cli-flag) | Quick one-off testing | Highest |
+| [`---` Separator](#separator) | Dash-prefixed args from CLI | Highest |
+| [CLI Flag](#cli-flag) | Simple key=value testing | High |
 | [Local Settings](#local-settings) | Project-wide defaults | Medium |
 | [Config File](#config-file) | CI/CD, reproducible builds | Lowest |
 
 When multiple sources provide settings, they're merged with CLI taking highest priority.
+
+## --- Separator
+
+Use the `---` separator to pass dash-prefixed arguments like `-AppleLanguages` directly from the command line:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  -- --- -AppleLanguages "(en)" -SkipOnboarding
+```
+
+<Tip>
+  The `---` separator is perfect for quickly testing locale changes or Apple system arguments without creating config files.
+</Tip>
+
+### How It Works
+
+- `--` (double dash) starts passthrough mode and sends args to xcodebuild
+- `---` (triple dash) switches to app launch mode for args passed to your app
+- You can combine them in any order after the initial `--`:
+
+```bash
+# xcodebuild args first, then app launch args
+flowdeck run ... -- -quiet --- -AppleLanguages "(en)"
+
+# App launch args first, then xcodebuild args
+flowdeck run ... -- --- -SkipOnboarding -- -quiet
+```
+
+### Examples
+
+```bash
+# Force English locale
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  -- --- -AppleLanguages "(en)" -AppleLocale en_US
+
+# Skip onboarding with debug flags
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  -- --- -SkipOnboarding -FIRDebugEnabled
+
+# Combined: xcodebuild coverage + app locale
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  -- -enableCodeCoverage YES --- -AppleLanguages "(ja)"
+```
 
 ## CLI Flag
 
@@ -30,7 +74,7 @@ flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
 ```
 
 <Warning>
-  The `--app-launch-options` flag uses option parsing that stops at values starting with `-`. For arguments like `-AppleLanguages` or `-SkipOnboarding`, use the config file or local settings instead.
+  The `--app-launch-options` flag uses option parsing that stops at values starting with `-`. For arguments like `-AppleLanguages` or `-SkipOnboarding`, use the [`---` separator](#separator) instead.
 </Warning>
 
 ### Arguments That Work
@@ -43,7 +87,7 @@ flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
 --app-launch-options EnableLogging ShowDebugMenu
 ```
 
-### Arguments That Need Config File
+### Arguments That Need Special Handling
 
 ```bash
 # These won't work with --app-launch-options (start with -)
@@ -52,7 +96,7 @@ flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
 -SkipOnboarding
 ```
 
-Use the config file or local settings for these instead.
+Use the [`---` separator](#separator), config file, or local settings for these.
 
 ## Local Settings
 
@@ -299,8 +343,15 @@ The `--app-launch-options` flag can't handle values starting with `-`:
 ```bash
 # Won't work - "-AppleLanguages" looks like a new option
 flowdeck run ... --app-launch-options -AppleLanguages "(en)"
+```
 
-# Solution: Use config file instead
+**Solutions:**
+
+```bash
+# Option 1: Use --- separator (recommended for CLI)
+flowdeck run ... -- --- -AppleLanguages "(en)"
+
+# Option 2: Use config file or local settings
 ```
 
 ### JSON Array Format
