@@ -1,0 +1,324 @@
+---
+title: "Xcodebuild Arguments"
+description: "Pass custom arguments and environment variables to xcodebuild"
+---
+
+FlowDeck provides full access to xcodebuild's capabilities through argument passthrough. You can pass custom flags, build settings, and environment variables using three methods.
+
+## Methods Overview
+
+| Method | Best For | Priority |
+|--------|----------|----------|
+| [CLI Passthrough](#cli-passthrough) | Quick one-off builds, testing flags | Highest |
+| [Local Build Settings](#local-build-settings) | Project-wide defaults | Medium |
+| [Config File](#config-file) | CI/CD, reproducible builds | Lowest |
+
+When multiple sources provide arguments, they're merged with CLI taking highest priority.
+
+## CLI Passthrough
+
+Pass arguments directly on the command line using `--` after all FlowDeck options:
+
+```bash
+# Single argument
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- -enableCodeCoverage YES
+
+# Multiple arguments
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+  -enableCodeCoverage YES \
+  ONLY_ACTIVE_ARCH=NO \
+  GCC_TREAT_WARNINGS_AS_ERRORS=YES
+
+# Build settings (KEY=VALUE format)
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+  CODE_SIGN_IDENTITY=- \
+  CODE_SIGNING_REQUIRED=NO
+```
+
+<Tip>
+  Everything after `--` is passed directly to xcodebuild. Use this for quick testing before adding settings to a config file.
+</Tip>
+
+### Works with All Commands
+
+```bash
+# Build
+flowdeck build ... -- -enableCodeCoverage YES
+
+# Run
+flowdeck run ... -- ONLY_ACTIVE_ARCH=YES
+
+# Test
+flowdeck test ... -- -parallel-testing-enabled YES
+```
+
+## Local Build Settings
+
+Create `.flowdeck/build-settings.json` in your project root for settings that apply to all FlowDeck commands automatically:
+
+```json
+{
+  "args": [
+    "ONLY_ACTIVE_ARCH=YES",
+    "GCC_TREAT_WARNINGS_AS_ERRORS=YES",
+    "-enableCodeCoverage", "YES"
+  ],
+  "env": {
+    "CUSTOM_BUILD_VAR": "value"
+  }
+}
+```
+
+This file is **auto-loaded** whenever you run FlowDeck commands from that project directory.
+
+<Info>
+  Add `.flowdeck/build-settings.json` to version control to share settings across your team.
+</Info>
+
+### Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `args` | array | Arguments appended to xcodebuild command line |
+| `env` | object | Environment variables set for xcodebuild process |
+
+## Config File
+
+Include xcodebuild settings in your `--config` JSON file:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "platform": "iOS",
+  "xcodebuild": {
+    "args": [
+      "-enableCodeCoverage", "YES",
+      "-resultBundlePath", "./build/results.xcresult"
+    ],
+    "env": {
+      "CI": "true"
+    }
+  }
+}
+```
+
+Use with:
+
+```bash
+flowdeck build --config path/to/config.json
+```
+
+<Info>
+  See [Configuration File](/cli/configuration-file) for complete config file documentation.
+</Info>
+
+## Priority and Merging
+
+When arguments come from multiple sources, they're combined in this order:
+
+1. **Config file** (lowest priority) - base configuration
+2. **Local build-settings.json** - overrides config file
+3. **CLI passthrough** (highest priority) - appended last, takes effect
+
+**Example:**
+
+```bash
+# Config file has: ONLY_ACTIVE_ARCH=YES
+# Local settings has: GCC_TREAT_WARNINGS_AS_ERRORS=YES
+# CLI: -- ONLY_ACTIVE_ARCH=NO
+
+# Final xcodebuild args include:
+# ONLY_ACTIVE_ARCH=YES (from config, overridden)
+# GCC_TREAT_WARNINGS_AS_ERRORS=YES (from local)
+# ONLY_ACTIVE_ARCH=NO (from CLI, takes effect because it's last)
+```
+
+## Common Arguments Reference
+
+### Build Settings
+
+| Argument | Description |
+|----------|-------------|
+| `ONLY_ACTIVE_ARCH=YES` | Build only for active architecture (faster debug builds) |
+| `ONLY_ACTIVE_ARCH=NO` | Build for all architectures (required for distribution) |
+| `CODE_SIGN_IDENTITY=-` | Disable code signing |
+| `CODE_SIGNING_REQUIRED=NO` | Skip code signing requirement |
+| `GCC_TREAT_WARNINGS_AS_ERRORS=YES` | Fail build on C/Obj-C warnings |
+| `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` | Fail build on Swift warnings |
+
+### Xcodebuild Flags
+
+| Flag | Description |
+|------|-------------|
+| `-enableCodeCoverage YES` | Enable code coverage collection |
+| `-resultBundlePath <path>` | Save test results to xcresult bundle |
+| `-allowProvisioningUpdates` | Allow automatic provisioning updates |
+| `-allowProvisioningDeviceRegistration` | Allow automatic device registration |
+| `-parallel-testing-enabled YES` | Enable parallel test execution |
+| `-parallel-testing-worker-count <n>` | Number of parallel test workers |
+
+### Compiler Flags
+
+| Argument | Description |
+|----------|-------------|
+| `OTHER_SWIFT_FLAGS=<flags>` | Additional Swift compiler flags |
+| `OTHER_CFLAGS=<flags>` | Additional C compiler flags |
+| `OTHER_LDFLAGS=<flags>` | Additional linker flags |
+
+## Environment Variables
+
+Set environment variables for the xcodebuild process:
+
+### In Local Settings
+
+```json
+{
+  "args": [],
+  "env": {
+    "CI": "true",
+    "DEVELOPER_DIR": "/Applications/Xcode-15.4.app/Contents/Developer"
+  }
+}
+```
+
+### In Config File
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "xcodebuild": {
+    "env": {
+      "DEVELOPER_DIR": "/Applications/Xcode-15.4.app/Contents/Developer"
+    }
+  }
+}
+```
+
+### Common Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `CI` | Indicates CI environment (affects some Xcode behaviors) |
+| `DEVELOPER_DIR` | Override Xcode installation path |
+| `XCODE_XCCONFIG_FILE` | Path to custom xcconfig file |
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Code Coverage">
+    ```bash
+    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+      -enableCodeCoverage YES \
+      -resultBundlePath ./coverage/results.xcresult
+    ```
+
+    Extract coverage after tests:
+    ```bash
+    xcrun xccov view --report ./coverage/results.xcresult
+    ```
+  </Accordion>
+
+  <Accordion title="Parallel Testing">
+    ```bash
+    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+      -parallel-testing-enabled YES \
+      -parallel-testing-worker-count 4
+    ```
+  </Accordion>
+
+  <Accordion title="CI Build (No Code Signing)">
+    ```bash
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+      CODE_SIGN_IDENTITY=- \
+      CODE_SIGNING_REQUIRED=NO
+    ```
+  </Accordion>
+
+  <Accordion title="Use Different Xcode Version">
+    Create `.flowdeck/build-settings.json`:
+    ```json
+    {
+      "args": [],
+      "env": {
+        "DEVELOPER_DIR": "/Applications/Xcode-15.4.app/Contents/Developer"
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Strict Warnings">
+    ```bash
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+      GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+      SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+    ```
+  </Accordion>
+
+  <Accordion title="Address Sanitizer">
+    ```bash
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
+      "OTHER_SWIFT_FLAGS=-sanitize=address" \
+      "OTHER_CFLAGS=-fsanitize=address" \
+      "OTHER_LDFLAGS=-fsanitize=address"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Viewing the Final Command
+
+Use `--verbose` to see the complete xcodebuild command with all arguments:
+
+```bash
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" --verbose -- \
+  -enableCodeCoverage YES
+```
+
+## Troubleshooting
+
+### Arguments Not Applied
+
+Ensure arguments are after `--` and properly formatted:
+
+```bash
+# Correct
+flowdeck build ... -- -enableCodeCoverage YES
+
+# Wrong (missing --)
+flowdeck build ... -enableCodeCoverage YES
+```
+
+### Build Settings Format
+
+Use `KEY=VALUE` format (no spaces around `=`):
+
+```bash
+# Correct
+flowdeck build ... -- ONLY_ACTIVE_ARCH=YES
+
+# Wrong
+flowdeck build ... -- ONLY_ACTIVE_ARCH = YES
+```
+
+### JSON Array Format
+
+In config files, each argument is a separate array element:
+
+```json
+{
+  "xcodebuild": {
+    "args": ["-enableCodeCoverage", "YES"]
+  }
+}
+```
+
+Not:
+
+```json
+{
+  "xcodebuild": {
+    "args": ["-enableCodeCoverage YES"]
+  }
+}
+```

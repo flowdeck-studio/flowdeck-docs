@@ -1,0 +1,325 @@
+---
+title: "Configuration File"
+description: "Define build settings in JSON for reproducible, portable builds"
+---
+
+Instead of passing parameters on the command line, you can define build settings in a JSON configuration file. This is especially useful for:
+
+- Reproducible builds across team members
+- CI/CD pipelines
+- Complex build configurations
+- Sharing settings across multiple commands
+
+## Using a Config File
+
+```bash
+flowdeck build --config path/to/config.json
+flowdeck run --config path/to/config.json
+flowdeck test --config path/to/config.json
+```
+
+<Tip>
+  You can generate a config file from FlowDeck interactive mode using the `W` (Write Config) option.
+</Tip>
+
+## Config File Structure
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Debug",
+  "platform": "iOS",
+  "version": "18.0",
+  "deviceUdid": "00008030-001234567890ABCD",
+  "simulatorUdid": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "derivedDataPath": "~/Library/Developer/FlowDeck/DerivedData",
+  "xcodebuild": {
+    "args": ["-enableCodeCoverage", "YES"],
+    "env": {
+      "CI": "true"
+    }
+  }
+}
+```
+
+## Field Reference
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `workspace` | string | **Yes** | Path to `.xcworkspace` or `.xcodeproj` (relative to project root) |
+| `scheme` | string | **Yes** | Scheme name to build |
+| `configuration` | string | No | Build configuration. Default: `Debug`. Options: `Debug`, `Release`, or custom |
+| `platform` | string | No | Target platform. Options: `iOS`, `macOS`, `watchOS`, `tvOS`, `visionOS` |
+| `version` | string | No | OS version (e.g., `18.0`, `17.5`). Uses latest available if not specified |
+| `deviceUdid` | string | No | Physical device UDID for device builds |
+| `simulatorUdid` | string | No | Simulator UDID for simulator builds |
+| `derivedDataPath` | string | No | Custom derived data directory path |
+| `xcodebuild` | object | No | Passthrough settings for xcodebuild (see [Xcodebuild Arguments](/cli/xcodebuild-args)) |
+
+## Target Resolution Priority
+
+When determining the build target, FlowDeck uses this priority order:
+
+1. **`deviceUdid`** - Physical device (if specified and connected)
+2. **`simulatorUdid`** - Exact simulator by UDID
+3. **`platform` + `version`** - Auto-resolve best matching simulator
+4. **`platform: "macOS"`** - Native Mac build (no simulator needed)
+
+## Examples
+
+<AccordionGroup>
+  <Accordion title="Minimal iOS Configuration">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp"
+    }
+    ```
+    Uses default Debug configuration and latest available iOS simulator.
+  </Accordion>
+
+  <Accordion title="macOS Native Build">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp-macOS",
+      "platform": "macOS",
+      "configuration": "Release"
+    }
+    ```
+    Builds for macOS without simulator.
+  </Accordion>
+
+  <Accordion title="Physical Device Build">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp",
+      "deviceUdid": "00008030-001234567890ABCD"
+    }
+    ```
+    Get device UDID from `flowdeck device list --json`.
+  </Accordion>
+
+  <Accordion title="Specific Simulator Version">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp",
+      "platform": "iOS",
+      "version": "17.5"
+    }
+    ```
+    Targets iOS 17.5 simulator specifically. If not available, FlowDeck will create one.
+  </Accordion>
+
+  <Accordion title="CI Release Build">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp",
+      "configuration": "Release",
+      "platform": "iOS",
+      "derivedDataPath": "/tmp/derived-data",
+      "xcodebuild": {
+        "args": [
+          "-enableCodeCoverage", "YES",
+          "CODE_SIGN_IDENTITY=-",
+          "CODE_SIGNING_REQUIRED=NO"
+        ],
+        "env": {
+          "CI": "true"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="watchOS Build">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp-Watch",
+      "platform": "watchOS",
+      "version": "11.0"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="visionOS Build">
+    ```json
+    {
+      "workspace": "MyApp.xcworkspace",
+      "scheme": "MyApp-Vision",
+      "platform": "visionOS",
+      "version": "2.0"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Custom Derived Data
+
+Specify a custom derived data path to:
+
+- Avoid conflicts with Xcode
+- Enable parallel builds with separate derived data
+- Use faster storage (e.g., RAM disk)
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "derivedDataPath": "/tmp/flowdeck-derived-data"
+}
+```
+
+Or on the command line:
+
+```bash
+flowdeck build --workspace MyApp.xcworkspace --scheme MyApp \
+  --simulator "iPhone 16" \
+  --derived-data-path ~/FlowDeck/DerivedData
+```
+
+## xcodebuild Passthrough
+
+The `xcodebuild` section passes arguments and environment variables directly to xcodebuild:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "xcodebuild": {
+    "args": [
+      "-enableCodeCoverage", "YES",
+      "-resultBundlePath", "./build/results.xcresult",
+      "ONLY_ACTIVE_ARCH=NO"
+    ],
+    "env": {
+      "CI": "true",
+      "DEVELOPER_DIR": "/Applications/Xcode-15.4.app/Contents/Developer"
+    }
+  }
+}
+```
+
+<Info>
+  See [Xcodebuild Arguments](/cli/xcodebuild-args) for complete passthrough documentation and common arguments.
+</Info>
+
+## File Locations
+
+### Project Config
+
+Store in your repository for team sharing:
+
+```
+your-project/
+  .flowdeck/
+    ci-config.json
+    release-config.json
+  MyApp.xcworkspace
+```
+
+### Multiple Configurations
+
+Create separate config files for different scenarios:
+
+```bash
+# Development
+flowdeck run --config .flowdeck/dev-config.json
+
+# CI builds
+flowdeck build --config .flowdeck/ci-config.json
+
+# Release builds
+flowdeck build --config .flowdeck/release-config.json
+```
+
+## CLI Override
+
+Command-line parameters override config file values:
+
+```bash
+# Config has configuration: "Debug", but this builds Release
+flowdeck build --config config.json --configuration Release
+```
+
+## Generating Config Files
+
+### From Interactive Mode
+
+1. Run `flowdeck -i` in your project directory
+2. Configure your build settings
+3. Press `W` to write config file
+4. Config saved to `.flowdeck/config.json`
+
+### From Context Command
+
+```bash
+# Get current project settings as JSON
+flowdeck context --json > .flowdeck/config.json
+```
+
+## Troubleshooting
+
+### Config File Not Found
+
+Ensure the path is correct:
+
+```bash
+# Absolute path
+flowdeck build --config /path/to/config.json
+
+# Relative to current directory
+flowdeck build --config ./configs/build.json
+```
+
+### Invalid JSON
+
+Validate your JSON syntax:
+
+```bash
+# Check if valid JSON
+cat config.json | jq .
+```
+
+### Workspace Not Found
+
+Workspace paths are relative to the **project root** (where you run FlowDeck), not the config file location:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace"
+}
+```
+
+If your workspace is in a subdirectory:
+
+```json
+{
+  "workspace": "src/MyApp.xcworkspace"
+}
+```
+
+### Simulator Not Available
+
+If the specified simulator doesn't exist:
+
+1. FlowDeck will try to resolve from `platform` + `version`
+2. If a matching runtime exists, it creates a new simulator
+3. Otherwise, it uses the first available simulator for that platform
+
+To ensure consistency, use simulator UDID:
+
+```bash
+# Get available simulators
+flowdeck simulator list --json
+
+# Use UDID in config
+{
+  "simulatorUdid": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```

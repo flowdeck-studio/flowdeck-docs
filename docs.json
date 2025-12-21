@@ -125,7 +125,8 @@
             "group": "Advanced",
             "pages": [
               "cli/ci-cd",
-              "cli/advanced-build-settings"
+              "cli/xcodebuild-args",
+              "cli/configuration-file"
             ]
           },
           {
