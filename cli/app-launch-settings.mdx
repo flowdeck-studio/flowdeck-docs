@@ -1,0 +1,322 @@
+---
+title: "App Launch Settings"
+description: "Pass custom arguments and environment variables to your app at launch"
+---
+
+FlowDeck lets you pass arguments and environment variables to your app when it launches on simulator or device. This is useful for:
+
+- Skipping onboarding flows during development
+- Setting debug flags
+- Configuring API environments
+- Testing different locales
+
+## Methods Overview
+
+| Method | Best For | Priority |
+|--------|----------|----------|
+| [CLI Flag](#cli-flag) | Quick one-off testing | Highest |
+| [Local Settings](#local-settings) | Project-wide defaults | Medium |
+| [Config File](#config-file) | CI/CD, reproducible builds | Lowest |
+
+When multiple sources provide settings, they're merged with CLI taking highest priority.
+
+## CLI Flag
+
+Pass arguments using `--app-launch-options`:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --app-launch-options SkipOnboarding=true DebugMode=1
+```
+
+<Warning>
+  The `--app-launch-options` flag uses option parsing that stops at values starting with `-`. For arguments like `-AppleLanguages` or `-SkipOnboarding`, use the config file or local settings instead.
+</Warning>
+
+### Arguments That Work
+
+```bash
+# UserDefaults-style (KEY=VALUE)
+--app-launch-options SkipOnboarding=true APIEnvironment=staging
+
+# Simple flags
+--app-launch-options EnableLogging ShowDebugMenu
+```
+
+### Arguments That Need Config File
+
+```bash
+# These won't work with --app-launch-options (start with -)
+-AppleLanguages (en)
+-AppleLocale en_US
+-SkipOnboarding
+```
+
+Use the config file or local settings for these instead.
+
+## Local Settings
+
+Create `.flowdeck/app-launch-settings.json` in your project root for settings that apply automatically:
+
+```json
+{
+  "args": [
+    "-AppleLanguages", "(en)",
+    "-SkipOnboarding",
+    "-UITestingDisabled", "NO"
+  ],
+  "env": {
+    "DEBUG_MODE": "1",
+    "API_ENVIRONMENT": "staging"
+  }
+}
+```
+
+This file is **auto-loaded** whenever you run `flowdeck run` from that project directory.
+
+<Info>
+  Add `.flowdeck/app-launch-settings.json` to `.gitignore` if it contains developer-specific settings, or commit it for team-wide defaults.
+</Info>
+
+### Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `args` | array | Arguments passed to the app at launch |
+| `env` | object | Environment variables set for the app process |
+
+## Config File
+
+Include app launch settings in your `--config` JSON file:
+
+```json
+{
+  "workspace": "MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "appLaunch": {
+    "args": [
+      "-AppleLanguages", "(en)",
+      "-SkipOnboarding"
+    ],
+    "env": {
+      "API_ENVIRONMENT": "staging"
+    }
+  }
+}
+```
+
+Use with:
+
+```bash
+flowdeck run --config path/to/config.json -S "iPhone 16"
+```
+
+<Info>
+  See [Configuration File](/cli/configuration-file) for complete config file documentation.
+</Info>
+
+## Priority and Merging
+
+When settings come from multiple sources, they're combined in this order:
+
+1. **Config file** (lowest priority) - base configuration
+2. **Local app-launch-settings.json** - overrides config file
+3. **CLI flag** (highest priority) - appended last, takes effect
+
+**Args** are appended in order (config + local + CLI).
+
+**Environment variables** are merged, with higher priority sources overwriting lower priority values for the same key.
+
+**Example:**
+
+```bash
+# Config file has: args: ["-AppleLocale", "en_US"], env: {DEBUG: "0"}
+# Local settings has: args: ["-SkipOnboarding"], env: {DEBUG: "1"}
+# CLI: --app-launch-options ShowDebugMenu
+
+# Final app launch:
+# args: -AppleLocale en_US -SkipOnboarding ShowDebugMenu
+# env: DEBUG=1 (local overrides config)
+```
+
+## Common Arguments Reference
+
+### Apple System Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `-AppleLanguages (en)` | Force app language to English |
+| `-AppleLanguages (es)` | Force app language to Spanish |
+| `-AppleLocale en_US` | Force locale to US English |
+| `-AppleTextDirection` | Override text direction (LTR/RTL) |
+| `-NSDoubleLocalizedStrings YES` | Double all localized strings (find truncation issues) |
+| `-NSShowNonLocalizedStrings YES` | Highlight non-localized strings |
+
+### Common App Flags
+
+| Argument | Description |
+|----------|-------------|
+| `-SkipOnboarding` | Skip onboarding flow (if your app supports it) |
+| `-UITestingDisabled NO` | Enable/disable UI testing mode |
+| `-FIRAnalyticsDebugEnabled` | Enable Firebase Analytics debug mode |
+| `-FIRDebugEnabled` | Enable Firebase debug mode |
+
+### UserDefaults Style
+
+You can pass any UserDefaults value:
+
+```json
+{
+  "args": ["-MyCustomFlag", "true", "-FeatureFlag_NewUI", "enabled"]
+}
+```
+
+Your app reads these with:
+
+```swift
+UserDefaults.standard.bool(forKey: "MyCustomFlag")
+UserDefaults.standard.string(forKey: "FeatureFlag_NewUI")
+```
+
+## Environment Variables
+
+Set environment variables for the app process:
+
+```json
+{
+  "args": [],
+  "env": {
+    "API_BASE_URL": "https://staging.api.example.com",
+    "DEBUG_MODE": "1",
+    "LOG_LEVEL": "verbose"
+  }
+}
+```
+
+Your app reads these with:
+
+```swift
+ProcessInfo.processInfo.environment["API_BASE_URL"]
+ProcessInfo.processInfo.environment["DEBUG_MODE"]
+```
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Skip Onboarding During Development">
+    ```json
+    {
+      "args": ["-SkipOnboarding", "-SkipTutorial"],
+      "env": {}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Test Different Locales">
+    ```json
+    {
+      "args": ["-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"],
+      "env": {}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Staging API Environment">
+    ```json
+    {
+      "args": [],
+      "env": {
+        "API_ENVIRONMENT": "staging",
+        "API_BASE_URL": "https://staging.api.example.com"
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Debug Firebase">
+    ```json
+    {
+      "args": ["-FIRDebugEnabled", "-FIRAnalyticsDebugEnabled"],
+      "env": {}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Find Localization Issues">
+    ```json
+    {
+      "args": [
+        "-NSDoubleLocalizedStrings", "YES",
+        "-NSShowNonLocalizedStrings", "YES"
+      ],
+      "env": {}
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Full Development Setup">
+    ```json
+    {
+      "args": [
+        "-AppleLanguages", "(en)",
+        "-SkipOnboarding",
+        "-EnableDevMenu"
+      ],
+      "env": {
+        "DEBUG_MODE": "1",
+        "API_ENVIRONMENT": "development",
+        "LOG_LEVEL": "verbose"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Arguments Not Taking Effect
+
+1. **Check the source** - Make sure your JSON is valid:
+   ```bash
+   cat .flowdeck/app-launch-settings.json | jq .
+   ```
+
+2. **Verify priority** - CLI args override local settings which override config file
+
+3. **Check your app** - Your app must read these values:
+   ```swift
+   // For args
+   UserDefaults.standard.bool(forKey: "SkipOnboarding")
+
+   // For env
+   ProcessInfo.processInfo.environment["DEBUG_MODE"]
+   ```
+
+### CLI Flag Limitation
+
+The `--app-launch-options` flag can't handle values starting with `-`:
+
+```bash
+# Won't work - "-AppleLanguages" looks like a new option
+flowdeck run ... --app-launch-options -AppleLanguages "(en)"
+
+# Solution: Use config file instead
+```
+
+### JSON Array Format
+
+Arguments are individual array elements:
+
+```json
+{
+  "args": ["-AppleLanguages", "(en)"]
+}
+```
+
+Not:
+
+```json
+{
+  "args": ["-AppleLanguages (en)"]
+}
+```

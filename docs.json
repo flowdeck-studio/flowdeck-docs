@@ -126,6 +126,7 @@
             "pages": [
               "cli/ci-cd",
               "cli/xcodebuild-args",
+              "cli/app-launch-settings",
               "cli/configuration-file"
             ]
           },

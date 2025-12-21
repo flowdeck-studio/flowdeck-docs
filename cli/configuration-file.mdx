@@ -239,41 +239,9 @@ The `appLaunch` section passes arguments and environment variables to your app w
 
 These are passed to `simctl launch` or the device launch process, not to xcodebuild.
 
-### Local App Launch Settings
-
-Create `.flowdeck/app-launch-settings.json` in your project root for settings that apply automatically:
-
-```json
-{
-  "args": ["-SkipOnboarding", "-AppleLanguages", "(en)"],
-  "env": {
-    "DEBUG_MODE": "1"
-  }
-}
-```
-
-This file is auto-loaded when running the `run` command.
-
-### CLI Flag
-
-For quick one-off overrides, use `--app-launch-options`:
-
-```bash
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  --app-launch-options AppDebug=true SkipTutorial
-```
-
-<Warning>
-  The `--app-launch-options` flag uses option parsing that stops at values starting with `-`. For arguments like `-AppleLanguages`, use the config file or `.flowdeck/app-launch-settings.json` instead.
-</Warning>
-
-### Priority Order
-
-When app launch settings come from multiple sources:
-
-1. **Config file** (lowest priority) - base configuration
-2. **Local app-launch-settings.json** - overrides config file
-3. **CLI flag** (highest priority) - appended last
+<Info>
+  See [App Launch Settings](/cli/app-launch-settings) for complete documentation, common arguments, and local settings file support.
+</Info>
 
 ## File Locations
 
