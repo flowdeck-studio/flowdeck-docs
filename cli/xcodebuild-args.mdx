@@ -3,66 +3,75 @@ title: "Xcodebuild Arguments"
 description: "Pass custom arguments and environment variables to xcodebuild"
 ---
 
-FlowDeck provides full access to xcodebuild's capabilities through argument passthrough. You can pass custom flags, build settings, and environment variables using three methods.
+FlowDeck provides full access to xcodebuild's capabilities through custom arguments and environment variables. You can configure builds using three methods.
 
 ## Methods Overview
 
 | Method | Best For | Priority |
 |--------|----------|----------|
-| [CLI Passthrough](#cli-passthrough) | Quick one-off builds, testing flags | Highest |
+| [CLI Options](#cli-options) | Quick one-off builds, testing flags | Highest |
 | [Local Build Settings](#local-build-settings) | Project-wide defaults | Medium |
 | [Config File](#config-file) | CI/CD, reproducible builds | Lowest |
 
 When multiple sources provide arguments, they're merged with CLI taking highest priority.
 
-## CLI Passthrough
+## CLI Options
 
-Pass arguments directly on the command line using `--` after all FlowDeck options:
+### Xcodebuild Arguments
+
+Use `--xcodebuild-options` to pass arguments to xcodebuild:
 
 ```bash
 # Single argument
-flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- -enableCodeCoverage YES
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-enableCodeCoverage YES'
 
 # Multiple arguments
-flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-  -enableCodeCoverage YES \
-  ONLY_ACTIVE_ARCH=NO \
-  GCC_TREAT_WARNINGS_AS_ERRORS=YES
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-enableCodeCoverage YES ONLY_ACTIVE_ARCH=NO GCC_TREAT_WARNINGS_AS_ERRORS=YES'
 
 # Build settings (KEY=VALUE format)
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-  CODE_SIGN_IDENTITY=- \
-  CODE_SIGNING_REQUIRED=NO
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO'
 ```
 
 <Tip>
-  Everything after `--` is passed directly to xcodebuild. Use this for quick testing before adding settings to a config file.
+  Use `=` syntax (e.g., `--xcodebuild-options='...'`) when values start with `-` to avoid argument parsing issues.
 </Tip>
 
-### Alternative: --xcodebuild-options
+### Xcodebuild Environment
 
-For the `run` command, you can also use `--xcodebuild-options` as an alternative to `--`:
+Use `--xcodebuild-env` to set environment variables for the build:
 
 ```bash
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  --xcodebuild-options ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=-
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-env='CI=true DEVELOPER_DIR=/Applications/Xcode-15.4.app/Contents/Developer'
 ```
 
-<Note>
-  This flag uses option parsing that stops at values starting with `-`. For xcodebuild flags like `-quiet` or `-enableCodeCoverage`, use `--` passthrough instead.
-</Note>
+### Combining Options
+
+All options can be combined:
+
+```bash
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-quiet -enableCodeCoverage YES' \
+  --xcodebuild-env='CI=true'
+```
 
 ### Works with All Commands
 
 ```bash
 # Build
-flowdeck build ... -- -enableCodeCoverage YES
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-enableCodeCoverage YES'
 
 # Run
-flowdeck run ... -- ONLY_ACTIVE_ARCH=YES
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='ONLY_ACTIVE_ARCH=YES'
 
 # Test
-flowdeck test ... -- -parallel-testing-enabled YES
+flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-parallel-testing-enabled YES'
 ```
 
 ## Local Build Settings
@@ -132,14 +141,14 @@ When arguments come from multiple sources, they're combined in this order:
 
 1. **Config file** (lowest priority) - base configuration
 2. **Local build-settings.json** - overrides config file
-3. **CLI passthrough** (highest priority) - appended last, takes effect
+3. **CLI options** (highest priority) - appended last, takes effect
 
 **Example:**
 
 ```bash
 # Config file has: ONLY_ACTIVE_ARCH=YES
 # Local settings has: GCC_TREAT_WARNINGS_AS_ERRORS=YES
-# CLI: -- ONLY_ACTIVE_ARCH=NO
+# CLI: --xcodebuild-options='ONLY_ACTIVE_ARCH=NO'
 
 # Final xcodebuild args include:
 # ONLY_ACTIVE_ARCH=YES (from config, overridden)
@@ -164,6 +173,7 @@ When arguments come from multiple sources, they're combined in this order:
 
 | Flag | Description |
 |------|-------------|
+| `-quiet` | Suppress most xcodebuild output |
 | `-enableCodeCoverage YES` | Enable code coverage collection |
 | `-resultBundlePath <path>` | Save test results to xcresult bundle |
 | `-allowProvisioningUpdates` | Allow automatic provisioning updates |
@@ -182,6 +192,13 @@ When arguments come from multiple sources, they're combined in this order:
 ## Environment Variables
 
 Set environment variables for the xcodebuild process:
+
+### Via CLI
+
+```bash
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-env='CI=true DEVELOPER_DIR=/Applications/Xcode-15.4.app/Contents/Developer'
+```
 
 ### In Local Settings
 
@@ -222,9 +239,8 @@ Set environment variables for the xcodebuild process:
 <AccordionGroup>
   <Accordion title="Code Coverage">
     ```bash
-    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-      -enableCodeCoverage YES \
-      -resultBundlePath ./coverage/results.xcresult
+    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='-enableCodeCoverage YES -resultBundlePath ./coverage/results.xcresult'
     ```
 
     Extract coverage after tests:
@@ -235,22 +251,25 @@ Set environment variables for the xcodebuild process:
 
   <Accordion title="Parallel Testing">
     ```bash
-    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-      -parallel-testing-enabled YES \
-      -parallel-testing-worker-count 4
+    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='-parallel-testing-enabled YES -parallel-testing-worker-count 4'
     ```
   </Accordion>
 
   <Accordion title="CI Build (No Code Signing)">
     ```bash
-    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-      CODE_SIGN_IDENTITY=- \
-      CODE_SIGNING_REQUIRED=NO
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO'
     ```
   </Accordion>
 
   <Accordion title="Use Different Xcode Version">
-    Create `.flowdeck/build-settings.json`:
+    ```bash
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-env='DEVELOPER_DIR=/Applications/Xcode-15.4.app/Contents/Developer'
+    ```
+
+    Or create `.flowdeck/build-settings.json`:
     ```json
     {
       "args": [],
@@ -263,43 +282,55 @@ Set environment variables for the xcodebuild process:
 
   <Accordion title="Strict Warnings">
     ```bash
-    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-      GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-      SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='GCC_TREAT_WARNINGS_AS_ERRORS=YES SWIFT_TREAT_WARNINGS_AS_ERRORS=YES'
     ```
   </Accordion>
 
   <Accordion title="Address Sanitizer">
     ```bash
-    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
-      "OTHER_SWIFT_FLAGS=-sanitize=address" \
-      "OTHER_CFLAGS=-fsanitize=address" \
-      "OTHER_LDFLAGS=-fsanitize=address"
+    flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='"OTHER_SWIFT_FLAGS=-sanitize=address" "OTHER_CFLAGS=-fsanitize=address" "OTHER_LDFLAGS=-fsanitize=address"'
+    ```
+  </Accordion>
+
+  <Accordion title="Quiet Build with Coverage (CI)">
+    ```bash
+    flowdeck test -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='-quiet -enableCodeCoverage YES' \
+      --xcodebuild-env='CI=true'
     ```
   </Accordion>
 </AccordionGroup>
 
 ## Viewing the Final Command
 
-Use `--verbose` to see the complete xcodebuild command with all arguments:
+Use `--dry-run` to see the complete xcodebuild command with all arguments without executing:
 
 ```bash
-flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" --verbose -- \
-  -enableCodeCoverage YES
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" --dry-run \
+  --xcodebuild-options='-enableCodeCoverage YES'
+```
+
+Use `--verbose` to see the command during actual execution:
+
+```bash
+flowdeck build -w App.xcworkspace -s MyApp -S "iPhone 16" --verbose \
+  --xcodebuild-options='-enableCodeCoverage YES'
 ```
 
 ## Troubleshooting
 
-### Arguments Not Applied
+### Values Starting with Dash
 
-Ensure arguments are after `--` and properly formatted:
+Use `=` syntax when values start with `-`:
 
 ```bash
-# Correct
-flowdeck build ... -- -enableCodeCoverage YES
+# Won't work - ArgumentParser sees -quiet as a new option
+flowdeck build ... --xcodebuild-options -quiet
 
-# Wrong (missing --)
-flowdeck build ... -enableCodeCoverage YES
+# Works - use = syntax
+flowdeck build ... --xcodebuild-options='-quiet -enableCodeCoverage YES'
 ```
 
 ### Build Settings Format
@@ -308,10 +339,10 @@ Use `KEY=VALUE` format (no spaces around `=`):
 
 ```bash
 # Correct
-flowdeck build ... -- ONLY_ACTIVE_ARCH=YES
+flowdeck build ... --xcodebuild-options='ONLY_ACTIVE_ARCH=YES'
 
 # Wrong
-flowdeck build ... -- ONLY_ACTIVE_ARCH = YES
+flowdeck build ... --xcodebuild-options='ONLY_ACTIVE_ARCH = YES'
 ```
 
 ### JSON Array Format

@@ -14,89 +14,65 @@ FlowDeck lets you pass arguments and environment variables to your app when it l
 
 | Method | Best For | Priority |
 |--------|----------|----------|
-| [`---` Separator](#separator) | Dash-prefixed args from CLI | Highest |
-| [CLI Flag](#cli-flag) | Simple key=value testing | High |
+| [CLI Options](#cli-options) | Quick testing from command line | Highest |
 | [Local Settings](#local-settings) | Project-wide defaults | Medium |
 | [Config File](#config-file) | CI/CD, reproducible builds | Lowest |
 
 When multiple sources provide settings, they're merged with CLI taking highest priority.
 
-## --- Separator
+## CLI Options
 
-Use the `---` separator to pass dash-prefixed arguments like `-AppleLanguages` directly from the command line:
+### App Launch Arguments
+
+Use `--launch-options` to pass arguments to your app:
 
 ```bash
 flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  -- --- -AppleLanguages "(en)" -SkipOnboarding
+  --launch-options='-AppleLanguages (en) -SkipOnboarding'
+```
+
+### App Launch Environment
+
+Use `--launch-env` to set environment variables for your app:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --launch-env='DEBUG=1 API_ENV=staging'
+```
+
+### Xcodebuild Arguments
+
+Use `--xcodebuild-options` to pass arguments to xcodebuild:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options='-quiet -enableCodeCoverage YES'
+```
+
+### Xcodebuild Environment
+
+Use `--xcodebuild-env` to set environment variables for the build:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-env='CI=true DEVELOPER_DIR=/Applications/Xcode-15.4.app/Contents/Developer'
+```
+
+### Combining Options
+
+All options can be combined in any order:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --launch-options='-AppleLanguages (en) -SkipOnboarding' \
+  --launch-env='DEBUG=1' \
+  --xcodebuild-options='-quiet' \
+  --xcodebuild-env='CI=true'
 ```
 
 <Tip>
-  The `---` separator is perfect for quickly testing locale changes or Apple system arguments without creating config files.
+  Use `=` syntax when values start with `-` to avoid argument parsing issues.
 </Tip>
-
-### How It Works
-
-- `--` (double dash) starts passthrough mode and sends args to xcodebuild
-- `---` (triple dash) switches to app launch mode for args passed to your app
-- You can combine them in any order after the initial `--`:
-
-```bash
-# xcodebuild args first, then app launch args
-flowdeck run ... -- -quiet --- -AppleLanguages "(en)"
-
-# App launch args first, then xcodebuild args
-flowdeck run ... -- --- -SkipOnboarding -- -quiet
-```
-
-### Examples
-
-```bash
-# Force English locale
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  -- --- -AppleLanguages "(en)" -AppleLocale en_US
-
-# Skip onboarding with debug flags
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  -- --- -SkipOnboarding -FIRDebugEnabled
-
-# Combined: xcodebuild coverage + app locale
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  -- -enableCodeCoverage YES --- -AppleLanguages "(ja)"
-```
-
-## CLI Flag
-
-Pass arguments using `--app-launch-options`:
-
-```bash
-flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
-  --app-launch-options SkipOnboarding=true DebugMode=1
-```
-
-<Warning>
-  The `--app-launch-options` flag uses option parsing that stops at values starting with `-`. For arguments like `-AppleLanguages` or `-SkipOnboarding`, use the [`---` separator](#separator) instead.
-</Warning>
-
-### Arguments That Work
-
-```bash
-# UserDefaults-style (KEY=VALUE)
---app-launch-options SkipOnboarding=true APIEnvironment=staging
-
-# Simple flags
---app-launch-options EnableLogging ShowDebugMenu
-```
-
-### Arguments That Need Special Handling
-
-```bash
-# These won't work with --app-launch-options (start with -)
--AppleLanguages (en)
--AppleLocale en_US
--SkipOnboarding
-```
-
-Use the [`---` separator](#separator), config file, or local settings for these.
 
 ## Local Settings
 
@@ -165,23 +141,11 @@ When settings come from multiple sources, they're combined in this order:
 
 1. **Config file** (lowest priority) - base configuration
 2. **Local app-launch-settings.json** - overrides config file
-3. **CLI flag** (highest priority) - appended last, takes effect
+3. **CLI options** (highest priority) - overrides everything
 
 **Args** are appended in order (config + local + CLI).
 
 **Environment variables** are merged, with higher priority sources overwriting lower priority values for the same key.
-
-**Example:**
-
-```bash
-# Config file has: args: ["-AppleLocale", "en_US"], env: {DEBUG: "0"}
-# Local settings has: args: ["-SkipOnboarding"], env: {DEBUG: "1"}
-# CLI: --app-launch-options ShowDebugMenu
-
-# Final app launch:
-# args: -AppleLocale en_US -SkipOnboarding ShowDebugMenu
-# env: DEBUG=1 (local overrides config)
-```
 
 ## Common Arguments Reference
 
@@ -209,10 +173,8 @@ When settings come from multiple sources, they're combined in this order:
 
 You can pass any UserDefaults value:
 
-```json
-{
-  "args": ["-MyCustomFlag", "true", "-FeatureFlag_NewUI", "enabled"]
-}
+```bash
+--launch-options='-MyCustomFlag true -FeatureFlag_NewUI enabled'
 ```
 
 Your app reads these with:
@@ -226,15 +188,8 @@ UserDefaults.standard.string(forKey: "FeatureFlag_NewUI")
 
 Set environment variables for the app process:
 
-```json
-{
-  "args": [],
-  "env": {
-    "API_BASE_URL": "https://staging.api.example.com",
-    "DEBUG_MODE": "1",
-    "LOG_LEVEL": "verbose"
-  }
-}
+```bash
+--launch-env='API_BASE_URL=https://staging.api.example.com DEBUG_MODE=1 LOG_LEVEL=verbose'
 ```
 
 Your app reads these with:
@@ -248,70 +203,53 @@ ProcessInfo.processInfo.environment["DEBUG_MODE"]
 
 <AccordionGroup>
   <Accordion title="Skip Onboarding During Development">
-    ```json
-    {
-      "args": ["-SkipOnboarding", "-SkipTutorial"],
-      "env": {}
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-options='-SkipOnboarding -SkipTutorial'
     ```
   </Accordion>
 
   <Accordion title="Test Different Locales">
-    ```json
-    {
-      "args": ["-AppleLanguages", "(ja)", "-AppleLocale", "ja_JP"],
-      "env": {}
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-options='-AppleLanguages (ja) -AppleLocale ja_JP'
     ```
   </Accordion>
 
   <Accordion title="Staging API Environment">
-    ```json
-    {
-      "args": [],
-      "env": {
-        "API_ENVIRONMENT": "staging",
-        "API_BASE_URL": "https://staging.api.example.com"
-      }
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-env='API_ENVIRONMENT=staging API_BASE_URL=https://staging.api.example.com'
     ```
   </Accordion>
 
   <Accordion title="Debug Firebase">
-    ```json
-    {
-      "args": ["-FIRDebugEnabled", "-FIRAnalyticsDebugEnabled"],
-      "env": {}
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-options='-FIRDebugEnabled -FIRAnalyticsDebugEnabled'
     ```
   </Accordion>
 
   <Accordion title="Find Localization Issues">
-    ```json
-    {
-      "args": [
-        "-NSDoubleLocalizedStrings", "YES",
-        "-NSShowNonLocalizedStrings", "YES"
-      ],
-      "env": {}
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-options='-NSDoubleLocalizedStrings YES -NSShowNonLocalizedStrings YES'
     ```
   </Accordion>
 
   <Accordion title="Full Development Setup">
-    ```json
-    {
-      "args": [
-        "-AppleLanguages", "(en)",
-        "-SkipOnboarding",
-        "-EnableDevMenu"
-      ],
-      "env": {
-        "DEBUG_MODE": "1",
-        "API_ENVIRONMENT": "development",
-        "LOG_LEVEL": "verbose"
-      }
-    }
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --launch-options='-AppleLanguages (en) -SkipOnboarding -EnableDevMenu' \
+      --launch-env='DEBUG_MODE=1 API_ENVIRONMENT=development LOG_LEVEL=verbose'
+    ```
+  </Accordion>
+
+  <Accordion title="CI Build with Coverage">
+    ```bash
+    flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+      --xcodebuild-options='-quiet -enableCodeCoverage YES' \
+      --xcodebuild-env='CI=true'
     ```
   </Accordion>
 </AccordionGroup>
@@ -325,7 +263,7 @@ ProcessInfo.processInfo.environment["DEBUG_MODE"]
    cat .flowdeck/app-launch-settings.json | jq .
    ```
 
-2. **Verify priority** - CLI args override local settings which override config file
+2. **Verify priority** - CLI options override local settings which override config file
 
 3. **Check your app** - Your app must read these values:
    ```swift
@@ -336,22 +274,16 @@ ProcessInfo.processInfo.environment["DEBUG_MODE"]
    ProcessInfo.processInfo.environment["DEBUG_MODE"]
    ```
 
-### CLI Flag Limitation
+### Values Starting with Dash
 
-The `--app-launch-options` flag can't handle values starting with `-`:
-
-```bash
-# Won't work - "-AppleLanguages" looks like a new option
-flowdeck run ... --app-launch-options -AppleLanguages "(en)"
-```
-
-**Solutions:**
+Use `=` syntax when values start with `-`:
 
 ```bash
-# Option 1: Use --- separator (recommended for CLI)
-flowdeck run ... -- --- -AppleLanguages "(en)"
+# Won't work - ArgumentParser sees -AppleLanguages as new option
+flowdeck run ... --launch-options -AppleLanguages "(en)"
 
-# Option 2: Use config file or local settings
+# Works - use = syntax
+flowdeck run ... --launch-options='-AppleLanguages (en)'
 ```
 
 ### JSON Array Format
