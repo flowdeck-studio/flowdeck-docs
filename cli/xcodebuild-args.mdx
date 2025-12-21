@@ -39,6 +39,19 @@ flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" -- \
   Everything after `--` is passed directly to xcodebuild. Use this for quick testing before adding settings to a config file.
 </Tip>
 
+### Alternative: --xcodebuild-options
+
+For the `run` command, you can also use `--xcodebuild-options` as an alternative to `--`:
+
+```bash
+flowdeck run -w App.xcworkspace -s MyApp -S "iPhone 16" \
+  --xcodebuild-options ONLY_ACTIVE_ARCH=YES CODE_SIGN_IDENTITY=-
+```
+
+<Note>
+  This flag uses option parsing that stops at values starting with `-`. For xcodebuild flags like `-quiet` or `-enableCodeCoverage`, use `--` passthrough instead.
+</Note>
+
 ### Works with All Commands
 
 ```bash
