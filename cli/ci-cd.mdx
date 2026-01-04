@@ -105,21 +105,25 @@ jobs:
       - name: Install FlowDeck
         run: curl -fsSL https://flowdeck.studio/install.sh | bash
 
-      - name: Build
+      - name: Initialize FlowDeck
         run: |
-          flowdeck build \
-            --workspace MyApp.xcworkspace \
-            --scheme MyApp \
-            --simulator "iPhone 16" \
-            --json
+          flowdeck init -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+
+      - name: Build
+        run: flowdeck build --json
 
       - name: Test
-        run: |
-          flowdeck test \
-            --workspace MyApp.xcworkspace \
-            --scheme MyApp \
-            --simulator "iPhone 16" \
-            --json
+        run: flowdeck test --json
+```
+
+### Alternative: Using Config Files
+
+```yaml
+      - name: Build
+        run: flowdeck build --config .flowdeck/ci-config.json --json
+
+      - name: Test
+        run: flowdeck test --config .flowdeck/ci-config.json --json
 ```
 
 ## Configuration File
@@ -149,8 +153,8 @@ Create `.flowdeck/ci-config.json` in your repository:
 ### Use in CI
 
 ```bash
-flowdeck build --config .flowdeck/ci-config.json --json
-flowdeck test --config .flowdeck/ci-config.json --json
+flowdeck build -c .flowdeck/ci-config.json --json
+flowdeck test -c .flowdeck/ci-config.json --json
 ```
 
 ### Config File Reference
@@ -207,7 +211,7 @@ flowdeck build --config .flowdeck/ci-config.json --json | \
 
 ```bash
 # List available simulators
-flowdeck simulator list --platform iOS --available-only --json
+flowdeck simulator list -P iOS -A --json
 
 # Boot by name
 flowdeck simulator boot "iPhone 16"
@@ -219,17 +223,22 @@ flowdeck simulator boot "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
 ### Create a Simulator (if needed)
 
 ```bash
-flowdeck simulator create "CI-iPhone" --device-type "iPhone 16" --runtime "iOS 18.0"
+flowdeck simulator create -n "CI-iPhone" --device-type "iPhone 16" --runtime "iOS 18.0"
 ```
 
 ## Best Practices
 
-### 1. Use Configuration Files
+### 1. Use Init or Configuration Files
 
-Store build settings in version-controlled config files for reproducibility:
+For reproducibility, either use `init` or config files:
 
 ```bash
-flowdeck build --config .flowdeck/ci-config.json --json
+# Option 1: Use init
+flowdeck init -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+flowdeck build --json
+
+# Option 2: Use config file
+flowdeck build -c .flowdeck/ci-config.json --json
 ```
 
 ### 2. Always Use JSON Mode
@@ -237,8 +246,8 @@ flowdeck build --config .flowdeck/ci-config.json --json
 Machine-readable output is essential for CI parsing and error detection:
 
 ```bash
-flowdeck build ... --json
-flowdeck test ... --json
+flowdeck build --json
+flowdeck test --json
 ```
 
 ### 3. Specify Simulator by UDID
@@ -257,17 +266,18 @@ Or resolve dynamically:
 
 ```bash
 # Get the first available iPhone 16 simulator UDID
-SIMULATOR_UDID=$(flowdeck simulator list --platform iOS --json | \
+SIMULATOR_UDID=$(flowdeck simulator list -P iOS --json | \
   jq -r '.[] | select(.name | contains("iPhone 16")) | .udid' | head -1)
 
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "$SIMULATOR_UDID"
+flowdeck init -w MyApp.xcworkspace -s MyApp -S "$SIMULATOR_UDID"
+flowdeck build --json
 ```
 
 ### 4. Clean Before Release Builds
 
 ```bash
-flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
-flowdeck build --config .flowdeck/release-config.json --json
+flowdeck clean --all
+flowdeck build -c .flowdeck/release-config.json --json
 ```
 
 ### 5. Use Derived Data Paths
@@ -301,7 +311,7 @@ flowdeck license status
 List available simulators and use exact names or UDIDs:
 
 ```bash
-flowdeck simulator list --platform iOS --available-only --json
+flowdeck simulator list -P iOS -A --json
 ```
 
 ### Build Timeout

@@ -15,14 +15,20 @@ flowdeck <command> [subcommand] [options]
 
 ### Build & Run
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `context` | `ctx` | Discover project structure (workspace, schemes, simulators) |
-| `build` | | Build the project |
-| `run` | | Build and launch the app |
-| `test` | | Run unit and UI tests |
-| `test discover` | | Discover available tests |
-| `clean` | | Clean build artifacts |
+| Command | Description |
+|---------|-------------|
+| `init` | Save project settings (workspace, scheme, simulator) |
+| `context` | Discover project structure (workspace, schemes, simulators) |
+| `build` | Build the project for simulator, device, or macOS |
+| `run` | Build and launch the app on simulator, device, or macOS |
+| `test` | Run unit and UI tests (alias for `test run`) |
+| `test run` | Run unit and UI tests |
+| `test discover` | Discover available tests without building |
+| `clean` | Clean build artifacts and Xcode caches |
+
+<Note>
+Legacy aliases like `ctx`, `log`, `sim`, `dev` are still supported for backward compatibility but are hidden from help output.
+</Note>
 
 ### App Management
 
@@ -34,58 +40,48 @@ flowdeck <command> [subcommand] [options]
 
 ### Simulator Management
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `simulator list` | `sim list` | List available simulators |
-| `simulator boot` | | Boot a simulator |
-| `simulator shutdown` | | Shutdown a simulator |
-| `simulator screenshot` | | Capture a screenshot |
-| `simulator erase` | | Reset simulator to factory |
-| `simulator clear-cache` | | Clear simulator caches |
-| `simulator create` | | Create a new simulator |
-| `simulator delete` | | Delete a simulator |
-| `simulator prune` | | Delete unused simulators |
-| `simulator runtimes` | | List available runtimes |
-| `simulator device-types` | | List available device types |
+| Command | Description |
+|---------|-------------|
+| `simulator list` | List available simulators |
+| `simulator boot` | Boot a simulator |
+| `simulator shutdown` | Shutdown a simulator |
+| `simulator open` | Open Simulator.app |
+| `simulator screenshot` | Capture a screenshot |
+| `simulator erase` | Reset simulator to factory |
+| `simulator clear-cache` | Clear simulator caches |
+| `simulator create` | Create a new simulator |
+| `simulator delete` | Delete a simulator |
+| `simulator prune` | Delete unused simulators |
+| `simulator runtime` | Manage simulator runtimes |
+| `simulator device-types` | List available device types |
 
 ### Device Management
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `device list` | `dev list` | List connected devices |
-| `device install` | | Install app on device |
-| `device uninstall` | | Remove app from device |
-| `device launch` | | Launch app on device |
-
-### Platform & Xcode
-
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `platform list` | `plat list` | List installed runtimes |
-| `platform available` | | List downloadable runtimes |
-| `platform install` | | Install a runtime |
-| `platform remove` | | Remove a runtime |
-| `platform prune` | | Delete simulators for a runtime |
-| `xcode open` | `xc open` | Open Xcode with project |
-| `xcode clean-derived-data` | | Delete DerivedData folder |
-| `xcode clean-cache` | | Delete Xcode cache |
+| Command | Description |
+|---------|-------------|
+| `device list` | List connected devices |
+| `device install` | Install app on device |
+| `device uninstall` | Remove app from device |
+| `device launch` | Launch app on device |
 
 ### Project Configuration
 
 | Command | Description |
 |---------|-------------|
-| `scheme list` | List schemes in workspace |
-| `scheme info` | Show scheme details |
-| `buildconfig` | List build configurations (aliases: `config`, `cfg`) |
+| `project schemes` | List schemes in workspace |
+| `project configs` | List build configurations (Debug, Release, etc.) |
+
+<Note>
+The `platform` and `xcode` commands are hidden from the main help but still available for backward compatibility. Runtime management is now under `simulator runtime`.
+</Note>
 
 ### System
 
 | Command | Description |
 |---------|-------------|
-| `license status` | Check license status |
-| `license activate` | Activate a license |
-| `license deactivate` | Deactivate license |
-| `update` | Check for updates |
+| `license` | Manage FlowDeck license |
+| `update` | Check for and install updates |
+| `--changelog` | View release notes and changes |
 
 ## Common Options
 
@@ -102,6 +98,7 @@ Most commands support these options:
 | `--project <path>` | `-p` | Project directory |
 | `--verbose` | `-v` | Show detailed output |
 | `--config <path>` | `-c` | Load settings from config file |
+| `--examples` | | Show usage examples for a command |
 
 ## Exit Codes
 

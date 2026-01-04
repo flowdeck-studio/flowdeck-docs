@@ -30,12 +30,29 @@ Once installed, Claude Code will automatically:
 2. Follow the FlowDeck debug loop (run app, attach logs, capture screenshots)
 3. Block attempts to use Apple CLI tools directly
 
+### Recommended Workflow
+
+AI agents should use the `context` -> `init` workflow for reliable builds:
+
+```bash
+# 1. Discover project structure
+flowdeck context --json
+
+# 2. Initialize with discovered settings
+flowdeck init -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+
+# 3. Run commands without parameters
+flowdeck build   # Uses saved settings
+flowdeck run     # Uses saved settings
+flowdeck test    # Uses saved settings
+```
+
 ### Example Prompts
 
 Just ask Claude Code to work with your iOS/macOS project:
 
 ```
-"Build and run my app on an iPhone 11 simulator"
+"Build and run my app on an iPhone 16 simulator"
 "Run the unit tests and fix any failures"
 "Take a screenshot of the current simulator state"
 "Run the app and check logs to understand why the login screen isn't working"

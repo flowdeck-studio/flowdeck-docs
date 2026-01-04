@@ -1,0 +1,121 @@
+---
+title: "Init Command"
+description: "Save project settings for streamlined CLI usage"
+---
+
+## flowdeck init
+
+Save project settings (workspace, scheme, simulator) so you can run build/run/test/clean commands without parameters. This is the **recommended way** to set up FlowDeck for static CLI usage.
+
+<Note>
+After running `flowdeck init`, all subsequent commands use the saved settings automatically. You only need to specify parameters when you want to override the defaults.
+</Note>
+
+```bash
+# iOS Simulator
+flowdeck init -w App.xcworkspace -s MyApp -S "iPhone 16"
+
+# macOS target
+flowdeck init -w App.xcworkspace -s MyApp -D "My Mac"
+
+# Physical device
+flowdeck init -w App.xcworkspace -s MyApp -D "John's iPhone"
+
+# With build configuration
+flowdeck init -w App.xcworkspace -s MyApp -S "iPhone 16" -C Debug
+
+# Re-initialize (overwrite existing config)
+flowdeck init -w App.xcworkspace -s MyApp -S "iPhone 16" --force
+
+# JSON output for automation
+flowdeck init -w App.xcworkspace -s MyApp -S "iPhone 16" --json
+
+# Show usage examples
+flowdeck init --examples
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--examples` | | Show usage examples |
+| `--project <path>` | `-p` | Project directory (defaults to current) |
+| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
+| `--simulator <name>` | `-S` | Simulator name or UDID |
+| `--device <name>` | `-D` | Device name or UDID (use 'My Mac' for macOS) |
+| `--json` | `-j` | Output as JSON |
+| `--force` | `-f` | Re-initialize even if already configured |
+
+### After Init
+
+Once initialized, run commands without parameters:
+
+```bash
+flowdeck build
+flowdeck run
+flowdeck test
+flowdeck clean
+```
+
+Override saved defaults with CLI params:
+
+```bash
+flowdeck run --simulator "iPhone 16 Pro"
+flowdeck build --configuration Release
+```
+
+### Stored Configuration
+
+Configuration is saved to `.flowdeck/state.json` in the project directory:
+
+```json
+{
+  "workspace": "App.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Debug",
+  "simulator": {
+    "name": "iPhone 16",
+    "udid": "12345678-ABCD-EFGH-1234-567890ABCDEF"
+  }
+}
+```
+
+<Note>
+The `.flowdeck/` directory can be committed to version control to share project configuration with your team.
+</Note>
+
+### Recommended Workflow for AI Agents
+
+The `context` -> `init` workflow is the recommended approach for AI agents and CI/CD:
+
+```bash
+# 1. Discover project structure
+flowdeck context --json
+
+# 2. Initialize with discovered settings
+flowdeck init -w <workspace> -s <scheme> -S <simulator>
+
+# 3. Run commands without parameters
+flowdeck build   # Uses saved settings
+flowdeck run     # Uses saved settings
+flowdeck test    # Uses saved settings
+```
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "message": "FlowDeck initialized successfully",
+  "workspace": "App.xcworkspace",
+  "scheme": "MyApp",
+  "configuration": "Debug",
+  "target": {
+    "type": "simulator",
+    "name": "iPhone 16",
+    "udid": "12345678-ABCD-EFGH-1234-567890ABCDEF"
+  }
+}
+```

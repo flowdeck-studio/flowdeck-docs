@@ -14,20 +14,26 @@ List available simulators, grouped by device family and OS version.
 flowdeck simulator list
 
 # Filter by platform
+flowdeck simulator list -P iOS
 flowdeck simulator list --platform iOS
 
 # Show only available simulators
+flowdeck simulator list -A
 flowdeck simulator list --available-only
 
 # JSON output
 flowdeck simulator list --json
+
+# Show usage examples
+flowdeck simulator list --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--platform <name>` | `-P` | Filter by platform (iOS, iPadOS, tvOS, watchOS, visionOS) |
+| `--examples` | | Show usage examples |
+| `--platform <name>` | `-P` | Filter by platform (iOS, tvOS, watchOS, visionOS) |
 | `--available-only` | `-A` | Show only available simulators |
 | `--json` | `-j` | Output as JSON |
 
@@ -225,7 +231,7 @@ flowdeck simulator create --name "Test Device" \
 | `--json` | `-j` | Output as JSON |
 
 <Tip>
-Use `flowdeck simulator device-types` and `flowdeck simulator runtimes` to find available options.
+Use `flowdeck simulator device-types` and `flowdeck simulator runtime list` to find available options.
 </Tip>
 
 ### JSON Output
@@ -301,33 +307,48 @@ flowdeck simulator prune --dry-run --json
 
 ---
 
-## flowdeck simulator runtimes
+## flowdeck simulator runtime
 
-List available simulator runtimes installed on your system.
+Manage simulator runtimes for iOS, tvOS, watchOS, and visionOS.
 
 ```bash
-flowdeck simulator runtimes
-flowdeck simulator runtimes --json
+# List installed runtimes
+flowdeck simulator runtime list
+flowdeck simulator runtime list --json
+
+# Download and install a runtime
+flowdeck simulator runtime create iOS 18.0
+flowdeck simulator runtime create iOS 18.0 --prune  # Remove auto-created simulators after install
+
+# Remove a runtime
+flowdeck simulator runtime delete "iOS 17.0"
 ```
 
-### Options
+### Subcommands
+
+| Subcommand | Description |
+|------------|-------------|
+| `list` | List installed simulator runtimes |
+| `create` | Download and install a simulator runtime |
+| `delete` | Remove a simulator runtime |
+
+### runtime create Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `<platform>` | | Platform: iOS, tvOS, watchOS, or visionOS (required) |
+| `<version>` | | Version (e.g., 18.0). Omit for latest |
+| `--verbose` | `-v` | Show command output |
+| `--prune` | | Remove auto-created simulators after install |
 | `--json` | `-j` | Output as JSON |
 
-### JSON Output
+### runtime delete Options
 
-```json
-[
-  {
-    "name": "iOS 18.1",
-    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-1",
-    "version": "18.1",
-    "isAvailable": true
-  }
-]
-```
+| Option | Short | Description |
+|--------|-------|-------------|
+| `<runtime>` | | Runtime name (e.g., "iOS 17.2") or runtime identifier (required) |
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
 
 ---
 

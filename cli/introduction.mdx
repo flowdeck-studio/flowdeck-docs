@@ -53,18 +53,40 @@ cd ~/myApp
 
 # Start FlowDeck's interactive mode
 flowdeck -i
-
-# Check available Commands
-Press 'H' for help on the available commands
 ```
 
-For more information about FlowDecks Interactive mode, visit the [Interactive mode docs.](/cli/interactive)
+For interactive development with a GUI-like experience, see [Interactive Mode](/cli/interactive).
 
-You can also run CLI commands directly, for documentation you can check the CLI Help or check the [Commands Overview](/cli/commands/overview)
+### Static CLI Usage (Recommended for Agents)
+
+For AI agents and CI/CD, use the `init` workflow to save project settings:
+
+```bash
+# 1. Discover project structure
+flowdeck context --json
+
+# 2. Initialize with discovered settings
+flowdeck init -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
+
+# 3. Run commands without parameters
+flowdeck build    # Uses saved settings
+flowdeck run      # Uses saved settings
+flowdeck test     # Uses saved settings
+flowdeck clean    # Uses saved settings
+```
+
+<Tip>
+After running `flowdeck init`, all subsequent commands use the saved settings automatically. This is the recommended approach for AI agents and CI/CD pipelines.
+</Tip>
+
+For complete command documentation, see [Commands Overview](/cli/commands/overview).
 
 ```bash
 # Get help
 flowdeck --help
+
+# Show examples for any command
+flowdeck build --examples
 ```
 
 ## Getting Help

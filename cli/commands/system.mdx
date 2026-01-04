@@ -1,9 +1,86 @@
 ---
 title: "System Commands"
-description: "Platform management, Xcode utilities, license, and updates"
+description: "Project inspection, platform management, Xcode utilities, license, and updates"
+---
+
+## Project Commands
+
+Inspect project structure, schemes, and build configurations.
+
+### flowdeck project schemes
+
+List all schemes in a workspace or project.
+
+```bash
+# List schemes in a workspace
+flowdeck project schemes -w App.xcworkspace
+
+# List schemes as JSON
+flowdeck project schemes -w App.xcworkspace --json
+
+# Show usage examples
+flowdeck project schemes --examples
+```
+
+#### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--examples` | | Show usage examples |
+| `--project <path>` | `-p` | Project directory |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--json` | `-j` | Output as JSON |
+
+#### JSON Output
+
+```json
+{
+  "schemes": [
+    {
+      "name": "MyApp",
+      "category": "Apps",
+      "isShared": true
+    }
+  ]
+}
+```
+
+---
+
+### flowdeck project configs
+
+List available build configurations (e.g., Debug, Release) in a workspace or project.
+
+```bash
+# List configurations
+flowdeck project configs -w App.xcworkspace
+
+# List as JSON
+flowdeck project configs -w App.xcworkspace --json
+```
+
+#### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) (required) |
+| `--json` | `-j` | Output as JSON |
+
+#### JSON Output
+
+```json
+{
+  "configurations": ["Debug", "Release", "Staging"]
+}
+```
+
 ---
 
 ## Platform Commands
+
+<Warning>
+The `platform` command is hidden from the main help output but still available for backward compatibility. For runtime management, use `flowdeck simulator runtime` instead.
+</Warning>
 
 Manage simulator platforms (runtimes) for iOS, tvOS, watchOS, and visionOS. Alias: `plat`
 
@@ -158,6 +235,10 @@ flowdeck platform prune "iOS 18.1" --verbose
 ---
 
 ## Xcode Commands
+
+<Warning>
+The `xcode` command is hidden from the main help output but still available for backward compatibility. For cleaning derived data and caches, use `flowdeck clean --derived-data` or `flowdeck clean --xcode-cache` instead.
+</Warning>
 
 Manage Xcode application and related caches. Alias: `xc`
 

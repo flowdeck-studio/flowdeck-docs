@@ -5,10 +5,22 @@ description: "Run unit and UI tests from the command line"
 
 FlowDeck CLI provides comprehensive test execution capabilities, making it easy to run tests from the terminal or integrate into CI/CD pipelines.
 
+## Quick Start
+
+After running `flowdeck init`, workspace, scheme, and simulator are saved to project state. Run tests with:
+
+```bash
+flowdeck test
+```
+
 ## Running All Tests
 
 ```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+# With saved settings (after init)
+flowdeck test
+
+# Or specify settings directly
+flowdeck test -w MyApp.xcworkspace -s MyScheme -S "iPhone 16"
 ```
 
 ## Running Tests on macOS
@@ -16,7 +28,7 @@ flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
 Use `--simulator none` for macOS-only test targets:
 
 ```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator none
+flowdeck test -S none
 ```
 
 ## Filtering Tests
@@ -26,12 +38,10 @@ flowdeck test --workspace MyApp.xcworkspace --simulator none
 Run specific test targets:
 
 ```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --test-targets MyAppTests
+flowdeck test --test-targets MyAppTests
 
 # Multiple targets
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --test-targets MyAppTests,MyAppUITests
+flowdeck test --test-targets "MyAppTests,MyAppUITests"
 ```
 
 ### By Test Class or Method
@@ -39,17 +49,14 @@ flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
 The `--only` option supports flexible matching:
 
 ```bash
-# Run all tests in a class
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --only LoginTests
+# Run all tests in a target/class
+flowdeck test --only MyAppTests/LoginTests
 
 # Run a specific test method
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --only testValidLogin
+flowdeck test --only MyAppTests/LoginTests/testValidLogin
 
-# Run with full path
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --only MyAppTests/LoginTests/testValidLogin
+# Full test path with spaces (use quotes)
+flowdeck test --only "MyAppTests/Login Tests/test Login Success"
 ```
 
 ### Skipping Tests
@@ -57,23 +64,27 @@ flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
 Skip specific tests:
 
 ```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-  --skip MyAppTests/SlowIntegrationTests
+flowdeck test --skip MyAppTests/SlowIntegrationTests
+flowdeck test --skip MyAppTests/IntegrationTests
 ```
 
 ## Test Discovery
 
-Discover all available tests before running:
+Discover all available tests before running. Test discovery uses static source parsing (like Xcode's Test Navigator) and does not require building the project.
 
 ```bash
-# Human-readable format
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+# After init, discover tests with saved settings
+flowdeck test discover
 
-# JSON format
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
+# Or specify settings directly
+flowdeck test discover -w MyApp.xcworkspace -s MyScheme
+
+# JSON format for tooling
+flowdeck test discover --json
 
 # Filter by name
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --filter Login
+flowdeck test discover --filter Login
+flowdeck test discover -F Login
 ```
 
 **Example output:**
@@ -97,7 +108,7 @@ Total: 4 test(s) in 2 class(es)
 For CI/CD integration, use JSON output:
 
 ```bash
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+flowdeck test --json
 ```
 
 **Example JSON output:**
@@ -147,11 +158,11 @@ jobs:
 
 ```bash
 # Count passed tests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | \
+flowdeck test --json | \
   jq -s '[.[] | select(.type == "test_passed")] | length'
 
 # List failed tests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json | \
+flowdeck test --json | \
   jq -s '[.[] | select(.type == "test_failed")] | .[].test'
 ```
 
@@ -189,18 +200,23 @@ Failures:
 </Tip>
 
 <Note>
-  Test discovery requires building the test targets first. Run a full build if tests aren't being discovered correctly.
+  Test discovery uses static source parsing and doesn't require building. It finds `XCTestCase` subclasses, `test*` methods, `@Suite` structs, and `@Test` functions directly from source files.
 </Note>
 
 ## Troubleshooting
 
 ### Tests Not Discovered
 
-Ensure the project builds successfully:
+Test discovery parses source files directly. If tests aren't found:
+
+1. Ensure test files are in the scheme's test targets
+2. Verify test classes inherit from `XCTestCase` or use `@Test`/`@Suite`
+3. Check that XCTest methods start with `test`
 
 ```bash
-flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+# Verify scheme and targets
+flowdeck context --json | jq '.schemes'
+flowdeck test discover --filter "YourTestClass"
 ```
 
 ### Simulator Issues
@@ -210,5 +226,5 @@ If tests fail to start, try booting the simulator first:
 ```bash
 flowdeck simulator list --platform iOS
 flowdeck simulator boot <UDID>
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+flowdeck test -S "iPhone 16"
 ```

@@ -113,6 +113,7 @@
             "group": "Command Reference",
             "pages": [
               "cli/commands/overview",
+              "cli/commands/init",
               "cli/commands/build",
               "cli/commands/test",
               "cli/commands/simulator",

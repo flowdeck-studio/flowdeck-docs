@@ -5,57 +5,74 @@ description: "Run and discover unit and UI tests"
 
 ## flowdeck test
 
-Run unit and UI tests.
+Run unit and UI tests. The `test` command is an alias for `test run`.
 
 ```bash
-# Run all tests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16"
+# After 'flowdeck init', run tests with saved settings
+flowdeck test
+
+# Run all tests (without init)
+flowdeck test -w MyApp.xcworkspace -s MyScheme -S "iPhone 16"
 
 # Run tests on macOS
-flowdeck test --workspace MyApp.xcworkspace --simulator none
+flowdeck test -S none
 
-# Run specific test target
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --test-targets MyAppTests
-
-# Run specific test (class name or method name - auto-resolved)
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --only LoginTests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --only testValidLogin
-
-# Run with full test path
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" \
-    --only MyAppTests/LoginTests/testValidLogin
+# Run specific tests with --only
+flowdeck test --only MyTests/LoginTests
+flowdeck test --only MyTests/LoginTests/testLogin
+flowdeck test --only "MyTests/Login Tests/test Login Success"
 
 # Skip specific tests
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --skip MyAppTests/SlowTests
+flowdeck test --skip MyTests/SlowTests
+flowdeck test --skip MyTests/IntegrationTests
 
-# Load settings from config file
-flowdeck test --config .flowdeck/state.json
+# Multiple test targets
+flowdeck test --test-targets "UnitTests,IntegrationTests"
 
-# JSON output for automation
-flowdeck test --workspace MyApp.xcworkspace --simulator "iPhone 16" --json
+# Output modes
+flowdeck test                  # Summary only (default)
+flowdeck test -v               # Verbose xcodebuild output
+flowdeck test --progress       # Show pass/fail as tests complete
+flowdeck test --streaming      # Clean output for file capture
+flowdeck test --json           # JSON for CI/automation
+
+# Pass arguments to xcodebuild
+flowdeck test --xcodebuild-options='-parallel-testing-enabled YES'
+flowdeck test --xcodebuild-options='-enableCodeCoverage YES'
+flowdeck test --xcodebuild-options='-resultBundlePath /tmp/results.xcresult'
+flowdeck test --xcodebuild-env='CI=true'
+
+# Show usage examples
+flowdeck test run --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--simulator <name>` | `-S` | Target simulator name/UDID, or `none` for macOS (required) |
-| `--scheme <name>` | `-s` | Test scheme name (auto-detected if only one) |
+| `--examples` | | Show usage examples |
+| `--project <path>` | `-p` | Project directory |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--derived-data-path <path>` | `-d` | Custom derived data location |
+| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS (REQUIRED) |
+| `--derived-data-path <path>` | `-d` | Derived data path |
 | `--config <path>` | `-c` | Path to JSON config file with project settings |
-| `--test-targets <targets>` | | Comma-separated test target names |
-| `--only <tests>` | | Run only specific tests (class, method, or full path) |
-| `--skip <tests>` | | Skip specific tests |
+| `--test-targets <targets>` | | Specific test targets to run (comma-separated) |
+| `--test-cases <cases>` | | Specific test cases to run (comma-separated, format: TargetName/ClassName/testMethod) |
+| `--only <tests>` | | Run only specific tests (format: TargetName/ClassName or TargetName/ClassName/testMethod) |
+| `--skip <tests>` | | Skip specific tests (format: TargetName/ClassName or TargetName/ClassName/testMethod) |
+| `--json` | `-j` | Output as JSON |
+| `--verbose` | `-v` | Show raw xcodebuild test output (beautified) |
 | `--progress` | | Show test results as they complete (pass/fail per test) |
-| `--streaming` | | Stream clean formatted test results (no escape codes) |
-| `--json` | `-j` | Output JSON events for programmatic consumption |
-| `--verbose` | `-v` | Show raw xcodebuild test output |
+| `--streaming` | | Stream clean formatted test results (no escape codes, for file capture) |
+| `--xcodebuild-options <args>` | | Extra xcodebuild arguments (e.g., `--xcodebuild-options='-parallel-testing-enabled YES'`) |
+| `--xcodebuild-env <vars>` | | Xcodebuild environment variables (e.g., 'CI=true') |
 
 <Note>
-The `--simulator` parameter is required. Use `--simulator none` for macOS builds.
+After running `flowdeck init`, workspace, scheme, and simulator are saved to project state.
+CLI parameters are only required if you haven't initialized, or to override saved values.
+Use `--simulator none` for macOS builds.
 </Note>
 
 ### Test Filtering
@@ -153,35 +170,37 @@ When using `--json`, the command outputs newline-delimited JSON events during ex
 
 ## flowdeck test discover
 
-Discover all available tests in a project by parsing test source files.
+Discover all available tests in a project by parsing test source files. This uses static source analysis (like Xcode's Test Navigator) and does not require building the project.
 
 ```bash
-# List all tests (human-readable)
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
+# After 'flowdeck init', discover tests with saved settings
+flowdeck test discover
 
-# List all tests as JSON (for tooling)
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --json
+# Discover tests (without init)
+flowdeck test discover -w MyApp.xcworkspace -s MyScheme
+
+# Output as JSON (for tooling)
+flowdeck test discover --json
 
 # Filter tests by name
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme --filter Login
-
-# Long form options
-flowdeck test discover --workspace MyApp.xcworkspace --scheme MyScheme
-
-# Load settings from config file
-flowdeck test discover --config .flowdeck/state.json
+flowdeck test discover --filter Login
+flowdeck test discover -F Login
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--scheme <name>` | `-s` | Scheme name (required) |
 | `--project <path>` | `-p` | Project directory |
-| `--config <path>` | `-c` | Path to JSON config file |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
 | `--filter <query>` | `-F` | Filter tests by name (case-insensitive) |
 | `--json` | `-j` | Output as JSON |
+
+<Note>
+Test discovery uses static source parsing and doesn't require building. It finds `XCTestCase` subclasses, `test*` methods, `@Suite` structs, and `@Test` functions directly from source files.
+</Note>
 
 ### JSON Output
 

@@ -8,48 +8,69 @@ description: "Build, run, and clean your iOS/macOS projects"
 Build an Xcode project or workspace for simulator, macOS, or physical device.
 
 ```bash
+# After 'flowdeck init', build using saved settings
+flowdeck build
+
 # Build for iOS simulator
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
+flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 
 # Build for macOS
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "My Mac"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "My Mac"
+flowdeck build -w MyApp.xcworkspace -s MyApp -S none  # Alternative
 
 # Build for physical device (by name - partial match)
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "iPhone"
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "John's iPhone"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "iPhone"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
 
 # Build for physical device (by UDID)
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --device "00008130-001245110C08001C"
+flowdeck build -w MyApp.xcworkspace -s MyApp -D "00008130-001245110C08001C"
 
 # Release configuration
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --configuration Release
+flowdeck build -C Release
 
 # JSON output for automation
-flowdeck build --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --json
+flowdeck build --json
+
+# Verbose output (show xcodebuild output)
+flowdeck build -v
+
+# Custom xcodebuild options
+flowdeck build --xcodebuild-options='-quiet'
+flowdeck build --xcodebuild-options='-enableCodeCoverage YES'
+
+# Custom xcodebuild environment
+flowdeck build --xcodebuild-env='CI=true'
 
 # Load settings from config file
-flowdeck build --config .flowdeck/state.json
+flowdeck build --config .flowdeck/ci-config.json
+
+# Show usage examples
+flowdeck build --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--simulator <name>` | `-S` | Target simulator name or UDID |
-| `--device <name>` | `-D` | Physical device name/UDID, or "My Mac" for macOS |
-| `--scheme <name>` | `-s` | Build scheme name (auto-detected if only one) |
+| `--examples` | | Show usage examples |
+| `--project <path>` | `-p` | Project directory |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--derived-data-path <path>` | `-d` | Custom derived data location |
-| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS |
+| `--device <name>` | `-D` | Physical device name or UDID |
+| `--derived-data-path <path>` | `-d` | Derived data path |
 | `--json` | `-j` | Output JSON events for programmatic consumption |
-| `--verbose` | `-v` | Show full xcodebuild output (default: progress only) |
+| `--verbose` | `-v` | Show build output in console |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--xcodebuild-options <args>` | | Extra xcodebuild arguments (e.g., `--xcodebuild-options='-quiet'`) |
+| `--xcodebuild-env <vars>` | | Xcodebuild environment variables (e.g., 'CI=true') |
 
 <Note>
 Either `--simulator` or `--device` must be provided:
 - Use `--simulator` for iOS/tvOS/watchOS simulators
-- Use `--device "My Mac"` (or `"mac"`, `"macOS"`) for macOS builds
+- Use `--device "My Mac"` for native macOS builds
+- Use `--device "My Mac Catalyst"` for Mac Catalyst builds (iOS app running on Mac)
 - Use `--device "<name>"` or `--device "<UDID>"` for physical devices
 </Note>
 
@@ -130,42 +151,77 @@ When using `--json`, the command outputs newline-delimited JSON events:
 Build and launch the app on a simulator, macOS, or physical device.
 
 ```bash
+# After 'flowdeck init', run using saved settings
+flowdeck run
+
 # Build and run on iOS simulator
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16"
+flowdeck run -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 
 # Run on macOS
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --device "My Mac"
+flowdeck run -w MyApp.xcworkspace -s MyApp -D "My Mac"
 
 # Run on physical device
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --device "John's iPhone"
+flowdeck run -w MyApp.xcworkspace -s MyApp -D "John's iPhone"
 
 # Run with log streaming
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --log
+flowdeck run -S "iPhone 16" --log
+flowdeck run -S "iPhone 16" -l  # Short form
 
 # Interactive mode (R=rebuild, C=clean+rebuild, Q=quit)
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --interactive
+flowdeck run -S "iPhone 16" --interactive
+flowdeck run -S "iPhone 16" -i  # Short form
 
 # Wait for debugger to attach
-flowdeck run --workspace MyApp.xcworkspace --scheme MyApp --simulator "iPhone 16" --wait-for-debugger
+flowdeck run -S "iPhone 16" --wait-for-debugger
+
+# Verbose output (show app console output)
+flowdeck run -S "iPhone 16" --verbose
+flowdeck run -S "iPhone 16" -v  # Short form
+
+# Pass launch arguments to the app
+flowdeck run -S "iPhone 16" --launch-options='-AppleLanguages (en) -SkipOnboarding'
+
+# Set environment variables for the app
+flowdeck run -S "iPhone 16" --launch-env='DEBUG=1 API_ENV=staging'
+
+# Pass custom xcodebuild options
+flowdeck run -S "iPhone 16" --xcodebuild-options='-quiet'
+flowdeck run -S "iPhone 16" --xcodebuild-env='CI=true'
+
+# JSON output
+flowdeck run -S "iPhone 16" --json
+
+# Show usage examples
+flowdeck run --examples
 ```
+
+<Note>
+Use `=` when passing values that start with a dash (e.g., `--launch-options="-Debug YES"`) to prevent argument parsing issues.
+</Note>
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--simulator <name>` | `-S` | Target simulator name or UDID |
-| `--device <name>` | `-D` | Physical device name/UDID, or "My Mac" for macOS |
-| `--scheme <name>` | `-s` | Build scheme name |
-| `--configuration <name>` | `-C` | Build configuration |
+| `--examples` | | Show usage examples |
 | `--project <path>` | `-p` | Project directory |
-| `--derived-data-path <path>` | `-d` | Custom derived data location |
-| `--config <path>` | `-c` | Path to JSON config file |
-| `--log` | `-l` | Stream logs after launch (print statements + OSLog) |
-| `--wait-for-debugger` | | Wait for debugger to attach before app starts |
-| `--interactive` | `-i` | Interactive mode: R to rebuild, C to clean+rebuild, Q to quit |
-| `--json` | `-j` | Output JSON events |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
+| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS |
+| `--device <name>` | `-D` | Physical device name or UDID |
+| `--derived-data-path <path>` | `-d` | Derived data path |
+| `--json` | `-j` | Output JSON events for programmatic consumption |
 | `--verbose` | `-v` | Show app console output (default: suppressed) |
+| `--wait-for-debugger` | | Wait for debugger to attach before app starts |
+| `--log` | `-l` | Stream logs after launch (print statements + OSLog) |
+| `--session <id>` | | Session ID for consistent app tracking across rebuilds |
+| `--interactive` | `-i` | Interactive mode: R to rebuild, C to clean+rebuild, Q to quit |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--launch-options <args>` | | App launch arguments. Use = when values start with - (e.g., `--launch-options='-AppleLanguages (en)'`) |
+| `--launch-env <vars>` | | App launch environment variables (e.g., 'DEBUG=1 API_ENV=staging') |
+| `--xcodebuild-options <args>` | | Additional xcodebuild arguments. Use = when values start with - (e.g., `--xcodebuild-options='-quiet'`) |
+| `--xcodebuild-env <vars>` | | Xcodebuild environment variables (e.g., 'CI=true DEVELOPER_DIR=/path') |
 
 <Note>
 Either `--simulator` or `--device` must be provided (same as build command).
@@ -208,41 +264,58 @@ flowdeck stop <app-id>     # Stop the app
 
 ## flowdeck clean
 
-Clean build artifacts for a project.
+Clean build artifacts and Xcode caches to resolve build issues.
 
 ```bash
-# Clean with workspace and scheme
-flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp
+# After 'flowdeck init', clean using saved settings
+flowdeck clean
 
-# Clean with custom derived data path
-flowdeck clean --workspace MyApp.xcworkspace --scheme MyApp --derived-data-path /tmp/DerivedData
+# Clean scheme build artifacts (requires workspace and scheme)
+flowdeck clean -w MyApp.xcworkspace -s MyApp
+
+# Nuke all Derived Data (fixes most build issues)
+flowdeck clean --derived-data
+
+# Nuke Xcode cache (fixes indexing/autocomplete issues)
+flowdeck clean --xcode-cache
+
+# Nuclear option - clean everything
+flowdeck clean --all
+
+# Verbose output
+flowdeck clean -v
+
+# JSON output
+flowdeck clean --json
 
 # Clean using config file
-flowdeck clean --config .flowdeck/state.json
+flowdeck clean --config .flowdeck/ci-config.json
 
-# Delete ALL DerivedData (nuclear option)
-flowdeck clean --derived-data
+# Show usage examples
+flowdeck clean --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
-| `--scheme <name>` | `-s` | Scheme name |
+| `--examples` | | Show usage examples |
+| `--derived-data` | | Delete all Xcode Derived Data (~Library/Developer/Xcode/DerivedData) |
+| `--xcode-cache` | | Delete Xcode cache (~Library/Caches/com.apple.dt.Xcode) |
+| `--all` | | Clean everything: scheme artifacts, derived data, and xcode cache |
 | `--project <path>` | `-p` | Project directory |
-| `--derived-data-path <path>` | `-d` | Custom derived data path |
-| `--config <path>` | `-c` | Path to JSON config file |
-| `--derived-data` | | Delete entire ~/Library/Developer/Xcode/DerivedData folder |
-| `--json` | `-j` | Output JSON events |
-| `--verbose` | `-v` | Show clean output in console |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--derived-data-path <path>` | `-d` | Custom derived data path for scheme clean |
+| `--config <path>` | `-c` | Path to JSON config file with project settings |
+| `--json` | `-j` | Output JSON events for programmatic consumption |
+| `--verbose` | `-v` | Show clean output in console (default: progress indicator only) |
 
 ### When to Use
 
-- Build errors that don't make sense
-- After changing build settings
-- After switching branches with different dependencies
-- When disk space is running low
+- `--derived-data`: Build errors that don't make sense, disk space issues
+- `--xcode-cache`: Autocomplete broken, indexing issues, SourceKit crashes
+- `--all`: When nothing else works
 
 ### JSON Output
 

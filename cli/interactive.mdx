@@ -30,30 +30,33 @@ The bottom of the terminal displays a persistent status bar showing:
 
 ## Keyboard Shortcuts
 
-### Execution Commands
+### Quick Actions
 
 | Key | Action                                                    |
 | --- | --------------------------------------------------------- |
 | `B` | Build the project                                         |
 | `R` | Build and Run in the selected simulator or device         |
-| `K` | Clean build artifacts                                     |
 | `U` | Run Tests menu                                            |
+| `K` | Clean menu (see below)                                    |
 | `X` | Stop running app                                          |
 | `L` | Toggle log/test viewer (available when an app is running) |
 
-### Configuration Commands
+### Build Configuration
 
 | Key | Action                                                  |
 | --- | ------------------------------------------------------- |
 | `S` | Select scheme                                           |
 | `T` | Select target (simulator/device)                        |
 | `C` | Select configuration (Debug/Release)                    |
-| `D` | Show devices and simulators                             |
-| `P` | Platform management menu                                |
-| `O` | Xcode menu (open, clean caches, clean derived-data)     |
-| `F` | FlowDeck options                                        |
-| `W` | Save current configuration to file                      |
 | `M` | Switch to other workspaces in your folder or subfolders |
+
+### Other
+
+| Key | Action                                                  |
+| --- | ------------------------------------------------------- |
+| `D` | Devices, Simulators & Runtimes menu                     |
+| `F` | FlowDeck settings                                       |
+| `W` | Export config (shows explanation, then saves)           |
 
 ### Navigation
 
@@ -64,6 +67,33 @@ The bottom of the terminal displays a persistent status bar showing:
 | `Page Up`   | Scroll output up      |
 | `Page Down` | Scroll output down    |
 | `↑` / `↓`   | Command history       |
+
+## Clean Menu
+
+When you press `K`, a Clean menu appears with the following options:
+
+| Option | Action |
+| ------ | ------ |
+| **Clean Project** | Cleans the build artifacts for the current scheme |
+| **Clean Xcode Cache** | Clears Xcode's internal caches |
+| **Clean Derived Data** | Removes the DerivedData folder |
+
+<Note>
+  Clean Derived Data removes all cached build products and may require a full rebuild of your project.
+</Note>
+
+## Devices Menu
+
+When you press `D`, the Devices, Simulators & Runtimes menu appears. This menu allows you to:
+
+- View and manage connected physical devices
+- View and manage iOS/tvOS/watchOS simulators
+- Manage simulator runtimes
+- **Prune Unused Simulators (last 90d)** - Remove simulators that haven't been used in the last 90 days
+
+<Note>
+  The prune option shows a confirmation dialog before removing any simulators.
+</Note>
 
 ## Features
 
@@ -82,6 +112,12 @@ When you press `U` to run tests, you can choose:
 ### Scheme & Target Selection
 
 Press `S` or `T` to interactively select from available schemes, simulators, or connected devices. Your selection is saved for future sessions.
+
+**Target Options:**
+- **My Mac** - Build and run as a native macOS app
+- **My Mac Catalyst** - Build and run iOS app on Mac via Catalyst (only appears if your scheme supports it)
+- **Physical Devices** - Connected iPhones, iPads, etc.
+- **Simulators** - iOS, iPadOS, tvOS, watchOS simulators
 
 ## State Persistence
 

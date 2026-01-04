@@ -94,8 +94,8 @@ flowdeck simulator create \
 # List available device types
 flowdeck simulator device-types
 
-# List available runtimes
-flowdeck simulator runtimes
+# List installed runtimes
+flowdeck simulator runtime list
 ```
 
 ## Deleting Simulators
@@ -203,7 +203,7 @@ flowdeck simulator delete "CI-iPhone"
 ]
 ```
 
-### simulator runtimes --json
+### simulator runtime list --json
 
 ```json
 [
@@ -240,5 +240,5 @@ flowdeck simulator list --json | jq '.[] | {name, udid}'
 Check for available runtimes and update Xcode if needed:
 
 ```bash
-flowdeck simulator runtimes
+flowdeck simulator runtime list
 ```

@@ -14,20 +14,26 @@ List connected physical devices.
 flowdeck device list
 
 # Filter by platform
+flowdeck device list -P iOS
 flowdeck device list --platform iOS
 
 # Show only available devices
+flowdeck device list -A
 flowdeck device list --available-only
 
 # JSON output
 flowdeck device list --json
+
+# Show usage examples
+flowdeck device list --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--platform <name>` | `-P` | Filter by platform (iOS, iPadOS, watchOS, tvOS, visionOS) |
+| `--examples` | | Show usage examples |
+| `--platform <name>` | `-P` | Filter by platform: iOS, iPadOS, watchOS, tvOS, visionOS |
 | `--available-only` | `-A` | Show only available devices |
 | `--json` | `-j` | Output as JSON |
 

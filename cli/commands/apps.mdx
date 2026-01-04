@@ -13,21 +13,26 @@ flowdeck apps
 
 # Include stopped apps
 flowdeck apps --all
+flowdeck apps -a
 
 # Clean up stale entries
 flowdeck apps --prune
 
 # JSON output
 flowdeck apps --json
+
+# Show usage examples
+flowdeck apps --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--all` | `-a` | Show all apps including stopped ones |
-| `--prune` | | Validate and remove stale entries |
+| `--examples` | | Show usage examples |
 | `--json` | `-j` | Output as JSON |
+| `--all` | `-a` | Show all apps including stopped ones |
+| `--prune` | | Validate and prune stale entries |
 
 ### JSON Output
 
@@ -71,14 +76,30 @@ Stream real-time logs from a running app. Alias: `log`
 # Stream logs (use App ID from 'flowdeck apps')
 flowdeck logs <app-id>
 
+# Stream logs using short ID
+flowdeck logs abc123
+
+# Stream logs using bundle ID
+flowdeck logs com.company.MyApp
+
 # Stream logs in JSON format
-flowdeck logs <app-id> --json
+flowdeck logs abc123 --json
+
+# Show usage examples
+flowdeck logs --examples
 ```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<identifier>` | App identifier (short ID, full ID, or bundle ID) |
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `--examples` | | Show usage examples |
 | `--json` | `-j` | Output as JSON |
 
 <Note>
@@ -111,18 +132,40 @@ Stop a running app.
 ```bash
 # Stop specific app
 flowdeck stop <app-id>
+flowdeck stop abc123
+
+# Stop by bundle ID
+flowdeck stop com.company.MyApp
 
 # Stop all running apps
 flowdeck stop --all
+flowdeck stop -a
 
 # Force kill unresponsive app
-flowdeck stop <app-id> --force
+flowdeck stop abc123 --force
+flowdeck stop abc123 -f
+
+# Force kill all apps
+flowdeck stop --all --force
+
+# JSON output
+flowdeck stop abc123 --json
+
+# Show usage examples
+flowdeck stop --examples
 ```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<identifier>` | App identifier (short ID, full ID, or bundle ID) |
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `--examples` | | Show usage examples |
 | `--all` | `-a` | Stop all running apps |
 | `--force` | `-f` | Force kill (SIGKILL instead of SIGTERM) |
 | `--json` | `-j` | Output as JSON |
@@ -143,7 +186,7 @@ flowdeck stop <app-id> --force
 
 ## flowdeck context
 
-Discover project structure including workspace, schemes, simulators, and build configurations. This is typically the **first command to run** in a new project. Alias: `ctx`
+Discover project structure including workspace, schemes, simulators, and build configurations. This is the **first command to run** in a new project. Alias: `ctx`
 
 ```bash
 # Human-readable output
@@ -153,13 +196,18 @@ flowdeck context
 flowdeck context --json
 
 # Specific project directory
+flowdeck context -p /path/to/project
 flowdeck context --project /path/to/project
+
+# Show usage examples
+flowdeck context --examples
 ```
 
 ### Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `--examples` | | Show usage examples |
 | `--project <path>` | `-p` | Project directory (defaults to current directory) |
 | `--json` | `-j` | Output as JSON |
 
@@ -208,123 +256,8 @@ flowdeck build --workspace MyApp.xcworkspace --simulator "iPhone 16"
 flowdeck run --workspace MyApp.xcworkspace --simulator "iPhone 16 Pro"
 ```
 
----
+<Note>
+For listing schemes and build configurations, see the [System Commands](/cli/commands/system) documentation for `flowdeck project schemes` and `flowdeck project configs`.
 
-## flowdeck scheme list
-
-List all schemes in a workspace or project. Alias: `sch list`
-
-```bash
-# List schemes in a workspace
-flowdeck scheme list --workspace MyApp.xcworkspace
-
-# List schemes as JSON
-flowdeck scheme list --workspace MyApp.xcworkspace --json
-
-# Use saved configuration
-flowdeck scheme list
-```
-
-### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--json` | `-j` | Output as JSON |
-
-### JSON Output
-
-```json
-[
-  {
-    "name": "MyApp",
-    "category": "iOS",
-    "isShared": true,
-    "productType": "application",
-    "platform": "iOS"
-  }
-]
-```
-
----
-
-## flowdeck scheme info
-
-Show detailed information about a scheme. Alias: `sch info`
-
-```bash
-# Show scheme info
-flowdeck scheme info --workspace MyApp.xcworkspace --scheme MyApp
-
-# Show scheme info as JSON
-flowdeck scheme info --workspace MyApp.xcworkspace --scheme MyApp --json
-
-# Use saved configuration
-flowdeck scheme info
-```
-
-### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj |
-| `--scheme <name>` | `-s` | Scheme name to inspect |
-| `--project <path>` | `-p` | Project directory (defaults to current directory) |
-| `--json` | `-j` | Output as JSON |
-
-### JSON Output
-
-```json
-{
-  "name": "MyApp",
-  "path": "/path/to/MyApp.xcscheme",
-  "isShared": true,
-  "buildAction": {
-    "parallelizeBuildables": true,
-    "targets": [
-      {
-        "name": "MyApp",
-        "buildForTesting": true,
-        "buildForRunning": true,
-        "buildForProfiling": true,
-        "buildForArchiving": true,
-        "buildForAnalyzing": true
-      }
-    ]
-  },
-  "testAction": {
-    "testTargets": ["MyAppTests", "MyAppUITests"]
-  },
-  "launchAction": {
-    "buildableName": "MyApp.app",
-    "launchStyle": "Auto"
-  }
-}
-```
-
----
-
-## flowdeck buildconfig
-
-List available build configurations for a project. Aliases: `config`, `cfg`
-
-```bash
-flowdeck buildconfig --workspace MyApp.xcworkspace
-flowdeck buildconfig --workspace MyApp.xcworkspace --json
-```
-
-### Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--workspace <path>` | `-w` | Path to .xcworkspace or .xcodeproj (required) |
-| `--json` | `-j` | Output as JSON |
-
-### JSON Output
-
-```json
-{
-  "configurations": ["Debug", "Release"]
-}
-```
+The legacy `scheme list`, `scheme info`, and `buildconfig` commands are still available for backward compatibility but are hidden from the main help output.
+</Note>
