@@ -15,7 +15,7 @@ flowdeck test
 flowdeck test -w MyApp.xcworkspace -s MyScheme -S "iPhone 16"
 
 # Run tests on macOS
-flowdeck test -S none
+flowdeck test -D "My Mac"
 
 # Run specific tests with --only
 flowdeck test --only MyTests/LoginTests
@@ -55,7 +55,7 @@ flowdeck test run --examples
 | `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
 | `--scheme <name>` | `-s` | Scheme name |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
-| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS (REQUIRED) |
+| `--simulator <name>` | `-S` | Simulator name/UDID (REQUIRED for iOS/tvOS/watchOS) |
 | `--derived-data-path <path>` | `-d` | Derived data path |
 | `--config <path>` | `-c` | Path to JSON config file with project settings |
 | `--test-targets <targets>` | | Specific test targets to run (comma-separated) |
@@ -72,7 +72,7 @@ flowdeck test run --examples
 <Note>
 After running `flowdeck init`, workspace, scheme, and simulator are saved to project state.
 CLI parameters are only required if you haven't initialized, or to override saved values.
-Use `--simulator none` for macOS builds.
+Use `--device "My Mac"` for macOS builds.
 </Note>
 
 ### Test Filtering
@@ -185,6 +185,9 @@ flowdeck test discover --json
 # Filter tests by name
 flowdeck test discover --filter Login
 flowdeck test discover -F Login
+
+# Include tests that are skipped in the scheme or test plan
+flowdeck test discover --include-skipped-tests
 ```
 
 ### Options
@@ -197,9 +200,10 @@ flowdeck test discover -F Login
 | `--config <path>` | `-c` | Path to JSON config file with project settings |
 | `--filter <query>` | `-F` | Filter tests by name (case-insensitive) |
 | `--json` | `-j` | Output as JSON |
+| `--include-skipped-tests` | | Include tests that are skipped in the scheme or test plan (marked as skipped) |
 
 <Note>
-Test discovery uses static source parsing and doesn't require building. It finds `XCTestCase` subclasses, `test*` methods, `@Suite` structs, and `@Test` functions directly from source files.
+Test discovery uses static source parsing and doesn't require building. It finds `XCTestCase` subclasses, `test*` methods, `@Suite` structs, and `@Test` functions directly from source files. By default, tests that are disabled in the scheme or test plan are excluded from results.
 </Note>
 
 ### JSON Output
@@ -214,7 +218,8 @@ Test discovery uses static source parsing and doesn't require building. It finds
       "identifier": "MyAppTests/LoginTests/testValidLogin",
       "file": "LoginTests.swift",
       "filePath": "/path/to/LoginTests.swift",
-      "lineNumber": 15
+      "lineNumber": 15,
+      "isSkipped": false
     }
   ]
 }

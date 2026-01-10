@@ -25,10 +25,10 @@ flowdeck test -w MyApp.xcworkspace -s MyScheme -S "iPhone 16"
 
 ## Running Tests on macOS
 
-Use `--simulator none` for macOS-only test targets:
+Use `--device "My Mac"` for macOS-only test targets:
 
 ```bash
-flowdeck test -S none
+flowdeck test -D "My Mac"
 ```
 
 ## Filtering Tests
@@ -85,7 +85,12 @@ flowdeck test discover --json
 # Filter by name
 flowdeck test discover --filter Login
 flowdeck test discover -F Login
+
+# Include tests that are skipped in the scheme or test plan
+flowdeck test discover --include-skipped-tests
 ```
+
+By default, tests that are disabled in the scheme or test plan are excluded from discovery results. Use `--include-skipped-tests` to show them (marked as skipped in the output).
 
 **Example output:**
 
@@ -101,6 +106,42 @@ CartTests
   - testRemoveItem CartTests.swift:34
 
 Total: 4 test(s) in 2 class(es)
+```
+
+**With `--include-skipped-tests`:**
+
+```
+🧪 Tests in MyScheme
+
+LoginTests
+  - testValidLogin LoginTests.swift:23
+  - testInvalidPassword LoginTests.swift:45
+  - testSlowIntegration LoginTests.swift:67 (skipped)
+
+CartTests
+  - testAddItem CartTests.swift:12
+  - testRemoveItem CartTests.swift:34
+
+Total: 5 test(s) in 2 class(es) (1 skipped)
+```
+
+**JSON output with skipped tests:**
+
+```json
+{
+  "tests": [
+    {
+      "target": "MyAppTests",
+      "class": "LoginTests",
+      "method": "testSlowIntegration",
+      "identifier": "MyAppTests/LoginTests/testSlowIntegration",
+      "file": "LoginTests.swift",
+      "filePath": "/path/to/LoginTests.swift",
+      "lineNumber": 67,
+      "isSkipped": true
+    }
+  ]
+}
 ```
 
 ## JSON Output

@@ -16,7 +16,6 @@ flowdeck build -w MyApp.xcworkspace -s MyApp -S "iPhone 16"
 
 # Build for macOS
 flowdeck build -w MyApp.xcworkspace -s MyApp -D "My Mac"
-flowdeck build -w MyApp.xcworkspace -s MyApp -S none  # Alternative
 
 # Build for physical device (by name - partial match)
 flowdeck build -w MyApp.xcworkspace -s MyApp -D "iPhone"
@@ -57,7 +56,7 @@ flowdeck build --examples
 | `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
 | `--scheme <name>` | `-s` | Scheme name |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
-| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS |
+| `--simulator <name>` | `-S` | Simulator name/UDID (REQUIRED for iOS/tvOS/watchOS) |
 | `--device <name>` | `-D` | Physical device name or UDID |
 | `--derived-data-path <path>` | `-d` | Derived data path |
 | `--json` | `-j` | Output JSON events for programmatic consumption |
@@ -208,7 +207,7 @@ Use `=` when passing values that start with a dash (e.g., `--launch-options="-De
 | `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
 | `--scheme <name>` | `-s` | Scheme name |
 | `--configuration <name>` | `-C` | Build configuration (Debug/Release) |
-| `--simulator <name>` | `-S` | Simulator name/UDID, or 'none' for macOS |
+| `--simulator <name>` | `-S` | Simulator name/UDID (REQUIRED for iOS/tvOS/watchOS) |
 | `--device <name>` | `-D` | Physical device name or UDID |
 | `--derived-data-path <path>` | `-d` | Derived data path |
 | `--json` | `-j` | Output JSON events for programmatic consumption |
