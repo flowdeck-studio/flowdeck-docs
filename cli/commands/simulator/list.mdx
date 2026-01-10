@@ -1,0 +1,75 @@
+---
+title: "Listing"
+description: "List available simulators"
+---
+
+List available simulators, grouped by device family and OS version.
+
+```bash
+# List all simulators
+flowdeck simulator list
+
+# Filter by platform
+flowdeck simulator list -P iOS
+flowdeck simulator list --platform iOS
+
+# Show only available simulators
+flowdeck simulator list -A
+flowdeck simulator list --available-only
+
+# JSON output
+flowdeck simulator list --json
+
+# Show usage examples
+flowdeck simulator list --examples
+```
+
+## Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--examples` | | Show usage examples |
+| `--platform <name>` | `-P` | Filter by platform (iOS, tvOS, watchOS, visionOS) |
+| `--available-only` | `-A` | Show only available simulators |
+| `--json` | `-j` | Output as JSON |
+
+## Output
+
+**Human-readable output:**
+
+```
+iOS Simulators:
+--------------------------------------------------
+  🟢 [✓] iPhone 16 Pro
+     OS: iOS 18.0 | State: Booted
+     UDID: 12345678-1234-1234-1234-123456789ABC
+
+  ⚪️ [✓] iPhone 16
+     OS: iOS 18.0 | State: Shutdown
+     UDID: 23456789-2345-2345-2345-23456789ABCD
+
+Found 2 simulator(s)
+🟢 1 booted
+```
+
+**Legend:**
+- 🟢 = Booted
+- ⚪️ = Shutdown
+- [✓] = Available
+- [✗] = Unavailable
+
+## JSON Output
+
+```json
+[
+  {
+    "udid": "12345678-1234-1234-1234-123456789ABC",
+    "name": "iPhone 16 Pro",
+    "platform": "iOS",
+    "osVersion": "18.0",
+    "state": "Shutdown",
+    "isBooted": false,
+    "isAvailable": true
+  }
+]
+```

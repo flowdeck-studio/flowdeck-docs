@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "FlowDeck",
-  "logo": "https://flowdeck.studio/logo.png",
-  "favicon": "https://flowdeck.studio/logo.png",
+  "logo": "https://flowdeck.studio/assets/images/logo-small.png",
+  "favicon": "https://flowdeck.studio/assets/images/logo-small.png",
   "colors": {
     "primary": "#245ADF",
     "light": "#5AC8FA",
@@ -116,10 +116,27 @@
               "cli/commands/init",
               "cli/commands/build",
               "cli/commands/test",
-              "cli/commands/simulator",
+              {
+                "group": "Project Commands",
+                "pages": [
+                  "cli/commands/project/schemes",
+                  "cli/commands/project/configs",
+                  "cli/commands/project/packages",
+                  "cli/commands/project/sync-profiles"
+                ]
+              },
+              {
+                "group": "Simulator Commands",
+                "pages": [
+                  "cli/commands/simulator/list",
+                  "cli/commands/simulator/lifecycle",
+                  "cli/commands/simulator/management",
+                  "cli/commands/simulator/screenshot",
+                  "cli/commands/simulator/runtimes"
+                ]
+              },
               "cli/commands/device",
-              "cli/commands/apps",
-              "cli/commands/system"
+              "cli/commands/apps"
             ]
           },
           {

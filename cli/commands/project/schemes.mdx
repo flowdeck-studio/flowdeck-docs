@@ -1,0 +1,81 @@
+---
+title: "Schemes"
+description: "List schemes in a workspace or project"
+---
+
+List all schemes available in a workspace or project.
+
+```bash
+# List schemes in a workspace
+flowdeck project schemes -w App.xcworkspace
+
+# List schemes as JSON
+flowdeck project schemes -w App.xcworkspace --json
+
+# Show usage examples
+flowdeck project schemes --examples
+```
+
+## Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--examples` | | Show usage examples |
+| `--project <path>` | `-p` | Project directory |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--json` | `-j` | Output as JSON |
+
+## Output
+
+**Human-readable output:**
+
+```
+Schemes in MyApp.xcworkspace:
+
+Apps:
+  • MyApp
+  • MyAppTests
+
+Frameworks:
+  • NetworkKit
+  • UIComponents
+```
+
+## JSON Output
+
+```json
+{
+  "schemes": [
+    {
+      "name": "MyApp",
+      "category": "Apps",
+      "isShared": true
+    },
+    {
+      "name": "NetworkKit",
+      "category": "Frameworks",
+      "isShared": true
+    }
+  ]
+}
+```
+
+## Use Cases
+
+### Find Available Schemes
+
+```bash
+# Discover schemes before building
+flowdeck project schemes -w MyApp.xcworkspace
+
+# Use in scripts
+SCHEME=$(flowdeck project schemes -w MyApp.xcworkspace --json | jq -r '.schemes[0].name')
+flowdeck build -w MyApp.xcworkspace -s "$SCHEME"
+```
+
+### CI/CD Integration
+
+```bash
+# List schemes as JSON for automation
+flowdeck project schemes -w MyApp.xcworkspace --json > schemes.json
+```

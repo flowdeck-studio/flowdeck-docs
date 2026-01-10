@@ -1,0 +1,142 @@
+---
+title: "Runtimes"
+description: "Manage simulator runtimes for iOS, tvOS, watchOS, and visionOS"
+---
+
+Manage simulator runtimes - the OS versions that simulators can run.
+
+## flowdeck simulator runtime list
+
+List installed simulator runtimes.
+
+```bash
+flowdeck simulator runtime list
+flowdeck simulator runtime list --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+[
+  {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-0",
+    "name": "iOS 18.0",
+    "version": "18.0",
+    "isAvailable": true
+  }
+]
+```
+
+---
+
+## flowdeck simulator runtime create
+
+Download and install a simulator runtime.
+
+```bash
+# Install latest iOS runtime
+flowdeck simulator runtime create iOS
+
+# Install specific version
+flowdeck simulator runtime create iOS 18.0
+
+# Install and prune auto-created simulators
+flowdeck simulator runtime create iOS 18.0 --prune
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `<platform>` | | Platform: iOS, tvOS, watchOS, or visionOS (required) |
+| `<version>` | | Version (e.g., 18.0). Omit for latest |
+| `--verbose` | `-v` | Show command output |
+| `--prune` | | Remove auto-created simulators after install |
+| `--json` | `-j` | Output as JSON |
+
+<Note>
+Installing a runtime can take several minutes depending on your internet connection. The runtime files are large (several GB).
+</Note>
+
+---
+
+## flowdeck simulator runtime delete
+
+Remove an installed simulator runtime.
+
+```bash
+# Delete by name
+flowdeck simulator runtime delete "iOS 17.0"
+
+# Delete by identifier
+flowdeck simulator runtime delete com.apple.CoreSimulator.SimRuntime.iOS-17-0
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `<runtime>` | | Runtime name (e.g., "iOS 17.2") or runtime identifier (required) |
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+<Warning>
+Deleting a runtime will make any simulators using that runtime unavailable. Make sure no simulators depend on it before deleting.
+</Warning>
+
+---
+
+## flowdeck simulator runtime prune
+
+Delete all simulators associated with a specific runtime.
+
+```bash
+# Prune simulators for iOS 17.0
+flowdeck simulator runtime prune "iOS 17.0"
+
+# Preview what would be deleted
+flowdeck simulator runtime prune "iOS 17.0" --dry-run
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `<runtime>` | | Runtime name (e.g., "iOS 17.2") or runtime identifier (required) |
+| `--dry-run` | | Show what would be deleted without deleting |
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+---
+
+## flowdeck simulator device-types
+
+List available simulator device types for creating new simulators.
+
+```bash
+flowdeck simulator device-types
+flowdeck simulator device-types --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+[
+  {
+    "name": "iPhone 16 Pro",
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro"
+  }
+]
+```

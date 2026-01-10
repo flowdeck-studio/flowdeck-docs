@@ -1,0 +1,62 @@
+---
+title: "Provisioning Profiles"
+description: "Sync provisioning profiles"
+---
+
+Sync provisioning profiles by triggering a build with automatic signing. This downloads and updates provisioning profiles from Apple Developer Portal.
+
+```bash
+# Sync provisioning profiles (uses saved state)
+flowdeck project sync-profiles
+
+# Sync with explicit workspace and scheme
+flowdeck project sync-profiles -w App.xcworkspace -s MyApp
+
+# Show detailed build output
+flowdeck project sync-profiles --verbose
+```
+
+## Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--project <path>` | `-p` | Project directory (defaults to current directory) |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name |
+| `--verbose` | `-v` | Show detailed xcodebuild output |
+| `--json` | `-j` | Output as JSON |
+
+## How It Works
+
+This command triggers a build with the `-allowProvisioningUpdates` and `-allowProvisioningDeviceRegistration` flags, which allows Xcode to:
+
+1. Download missing provisioning profiles from your Apple Developer account
+2. Register new devices if needed
+3. Update expired profiles
+
+<Tip>
+Run this command when you see signing errors related to expired or missing provisioning profiles.
+</Tip>
+
+## Use Cases
+
+### Fix Signing Errors
+
+```bash
+# When you see "Provisioning profile not found" errors
+flowdeck project sync-profiles -w MyApp.xcworkspace -s MyApp
+```
+
+### After Adding New Team Members
+
+```bash
+# Sync profiles after team membership changes
+flowdeck project sync-profiles --verbose
+```
+
+### CI/CD Setup
+
+```bash
+# Ensure profiles are up-to-date in CI
+flowdeck project sync-profiles -w MyApp.xcworkspace -s MyApp --json
+```

@@ -1,0 +1,159 @@
+---
+title: "Management"
+description: "Create, delete, and manage simulators"
+---
+
+Commands for creating, deleting, and maintaining simulators.
+
+## flowdeck simulator create
+
+Create a new simulator with the specified device type and runtime.
+
+```bash
+# Create an iPhone 16 Pro simulator with iOS 18.1
+flowdeck simulator create --name "My iPhone 16" \
+    --device-type "iPhone 16 Pro" --runtime "iOS 18.1"
+
+# Create with JSON output
+flowdeck simulator create --name "Test Device" \
+    --device-type "iPhone 15" --runtime "iOS 17.2" --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--name <name>` | `-n` | Name for the new simulator (required) |
+| `--device-type <type>` | | Device type, e.g., "iPhone 16 Pro" (required) |
+| `--runtime <runtime>` | | Runtime, e.g., "iOS 18.1" (required) |
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+<Tip>
+Use `flowdeck simulator device-types` and `flowdeck simulator runtime list` to find available options.
+</Tip>
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "udid": "12345678-1234-1234-1234-123456789ABC",
+  "name": "My iPhone 16",
+  "deviceType": "iPhone 16 Pro",
+  "runtime": "iOS 18.1"
+}
+```
+
+---
+
+## flowdeck simulator delete
+
+Delete a simulator by UDID or name.
+
+```bash
+# Delete by UDID
+flowdeck simulator delete <UDID>
+
+# Delete by name (prompts if multiple matches)
+flowdeck simulator delete "iPhone 15"
+
+# Delete all unavailable simulators
+flowdeck simulator delete placeholder --unavailable
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--unavailable` | | Delete all unavailable simulators (ignores identifier) |
+| `--verbose` | `-v` | Show command output |
+
+---
+
+## flowdeck simulator prune
+
+Delete unused simulators (those that have never been used) to free up disk space.
+
+```bash
+# Preview what would be deleted
+flowdeck simulator prune --dry-run
+
+# Delete unused simulators
+flowdeck simulator prune
+
+# Get JSON output for automation
+flowdeck simulator prune --dry-run --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--dry-run` | | Show what would be deleted without deleting |
+| `--verbose` | `-v` | Show verbose output |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "dryRun": true,
+  "deleted": ["12345678-1234-1234-1234-123456789ABC"],
+  "count": 1
+}
+```
+
+---
+
+## flowdeck simulator erase
+
+Erase all content and settings from a simulator, resetting it to factory defaults.
+
+```bash
+# Erase a simulator
+flowdeck simulator erase <UDID>
+
+# Erase with JSON output
+flowdeck simulator erase <UDID> --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+<Warning>
+This action is destructive and cannot be undone. The simulator must be shutdown before erasing.
+</Warning>
+
+### When to Use
+
+- To test fresh app installation
+- To clear corrupted simulator state
+- Before running UI tests that need a clean slate
+
+---
+
+## flowdeck simulator clear-cache
+
+Clear simulator caches to free disk space and resolve caching issues.
+
+```bash
+flowdeck simulator clear-cache
+flowdeck simulator clear-cache --verbose
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+
+### When to Use
+
+- When simulators are using too much disk space
+- When experiencing strange caching behavior
+- After updating Xcode

@@ -1,0 +1,56 @@
+---
+title: "Build Configurations"
+description: "List build configurations"
+---
+
+List available build configurations (e.g., Debug, Release) in a workspace or project.
+
+```bash
+# List configurations
+flowdeck project configs -w App.xcworkspace
+
+# List as JSON
+flowdeck project configs -w App.xcworkspace --json
+```
+
+## Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) (required) |
+| `--json` | `-j` | Output as JSON |
+
+## Output
+
+**Human-readable output:**
+
+```
+Build Configurations:
+  • Debug
+  • Release
+  • Staging
+```
+
+## JSON Output
+
+```json
+{
+  "configurations": ["Debug", "Release", "Staging"]
+}
+```
+
+## Use Cases
+
+### List Available Configurations
+
+```bash
+# See what configurations are available
+flowdeck project configs -w MyApp.xcworkspace
+```
+
+### Use in Build Commands
+
+```bash
+# Build with specific configuration
+flowdeck build -w MyApp.xcworkspace -s MyApp -C Release
+```

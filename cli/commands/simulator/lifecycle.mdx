@@ -1,0 +1,80 @@
+---
+title: "Lifecycle"
+description: "Boot, shutdown, and open simulators"
+---
+
+Commands for controlling simulator state.
+
+## flowdeck simulator boot
+
+Boot a simulator so it's ready to run apps.
+
+```bash
+# Boot a simulator
+flowdeck simulator boot <UDID>
+
+# Boot with verbose output
+flowdeck simulator boot <UDID> --verbose
+
+# Boot with JSON output
+flowdeck simulator boot <UDID> --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+### JSON Output
+
+```json
+{
+  "success": true,
+  "message": "Simulator booted successfully",
+  "udid": "12345678-1234-1234-1234-123456789ABC"
+}
+```
+
+---
+
+## flowdeck simulator shutdown
+
+Shutdown a running simulator.
+
+```bash
+# Shutdown a simulator
+flowdeck simulator shutdown <UDID>
+
+# Shutdown with verbose output
+flowdeck simulator shutdown <UDID> --verbose
+
+# Shutdown with JSON output
+flowdeck simulator shutdown <UDID> --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |
+
+---
+
+## flowdeck simulator open
+
+Open the Simulator.app application.
+
+```bash
+flowdeck simulator open
+flowdeck simulator open --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-v` | Show command output |
+| `--json` | `-j` | Output as JSON |

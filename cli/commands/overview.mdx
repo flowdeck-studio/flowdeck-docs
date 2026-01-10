@@ -52,7 +52,10 @@ Legacy aliases like `ctx`, `log`, `sim`, `dev` are still supported for backward 
 | `simulator create` | Create a new simulator |
 | `simulator delete` | Delete a simulator |
 | `simulator prune` | Delete unused simulators |
-| `simulator runtime` | Manage simulator runtimes |
+| `simulator runtime list` | List installed runtimes |
+| `simulator runtime create` | Download and install a runtime |
+| `simulator runtime delete` | Remove a runtime |
+| `simulator runtime prune` | Delete simulators for a runtime |
 | `simulator device-types` | List available device types |
 
 ### Device Management
@@ -64,24 +67,33 @@ Legacy aliases like `ctx`, `log`, `sim`, `dev` are still supported for backward 
 | `device uninstall` | Remove app from device |
 | `device launch` | Launch app on device |
 
-### Project Configuration
+### Project Management
 
 | Command | Description |
 |---------|-------------|
 | `project schemes` | List schemes in workspace |
 | `project configs` | List build configurations (Debug, Release, etc.) |
+| `project packages list` | List installed Swift packages |
+| `project packages add` | Add a new package dependency |
+| `project packages remove` | Remove a package dependency |
+| `project packages resolve` | Resolve Swift Package dependencies |
+| `project packages update` | Update packages to latest versions |
+| `project packages clear` | Clear package cache (SourcePackages) |
+| `project sync-profiles` | Sync provisioning profiles via build |
 
-<Note>
-The `platform` and `xcode` commands are hidden from the main help but still available for backward compatibility. Runtime management is now under `simulator runtime`.
-</Note>
-
-### System
+### Utilities
 
 | Command | Description |
 |---------|-------------|
-| `license` | Manage FlowDeck license |
+| `license status` | Check license status |
+| `license activate` | Activate license on this machine |
+| `license deactivate` | Deactivate license |
 | `update` | Check for and install updates |
-| `--changelog` | View release notes and changes |
+| `changelog` | View release notes and changes |
+
+<Tip>
+For CI/CD environments, set the `FLOWDECK_LICENSE_KEY` environment variable instead of activating.
+</Tip>
 
 ## Common Options
 

@@ -50,6 +50,12 @@ The bottom of the terminal displays a persistent status bar showing:
 | `C` | Select configuration (Debug/Release)                    |
 | `M` | Switch to other workspaces in your folder or subfolders |
 
+### Project Commands
+
+| Key | Action                                                  |
+| --- | ------------------------------------------------------- |
+| `P` | Project Commands menu (see below)                       |
+
 ### Other
 
 | Key | Action                                                  |
@@ -81,6 +87,30 @@ When you press `K`, a Clean menu appears with the following options:
 <Note>
   Clean Derived Data removes all cached build products and may require a full rebuild of your project.
 </Note>
+
+## Project Commands Menu
+
+When you press `P`, the Project Commands menu appears with the following options:
+
+| Option | Action |
+| ------ | ------ |
+| **Swift Packages** | Opens a submenu with package management options |
+| **Sync Provisioning Profiles** | Syncs provisioning profiles via build with automatic signing |
+| **Open in Xcode** | Opens the current workspace in Xcode |
+
+### Swift Packages Submenu
+
+| Option | Action |
+| ------ | ------ |
+| **Resolve Packages** | Resolves Swift Package dependencies |
+| **Update Packages** | Updates packages to latest versions (clears cache and re-resolves) |
+| **Clear Package Cache** | Removes the SourcePackages directory from DerivedData |
+
+<Tip>
+Use "Update Packages" when you want to fetch the latest versions of all packages, such as after a new release or when resolving version conflicts.
+</Tip>
+
+---
 
 ## Devices Menu
 

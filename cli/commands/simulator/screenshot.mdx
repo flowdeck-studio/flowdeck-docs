@@ -1,0 +1,47 @@
+---
+title: "Screenshots"
+description: "Capture screenshots from simulators"
+---
+
+Capture a screenshot from a booted simulator.
+
+```bash
+# Take screenshot (auto-named with timestamp)
+flowdeck simulator screenshot <UDID>
+
+# Save to specific path
+flowdeck simulator screenshot <UDID> --output ~/Desktop/screenshot.png
+```
+
+## Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--output <path>` | `-o` | Output path for screenshot (default: `./screenshot-<timestamp>.png`) |
+| `--verbose` | `-v` | Show command output |
+
+## Usage Examples
+
+### Capture to Current Directory
+
+```bash
+flowdeck simulator screenshot 12345678-1234-1234-1234-123456789ABC
+# Creates: ./screenshot-2024-01-15-143022.png
+```
+
+### Capture to Specific Location
+
+```bash
+flowdeck simulator screenshot 12345678-1234-1234-1234-123456789ABC \
+    --output ~/Desktop/app-screenshot.png
+```
+
+### Capture in CI/CD
+
+```bash
+# Get first booted simulator
+UDID=$(flowdeck simulator list --json | jq -r '.[] | select(.isBooted) | .udid' | head -1)
+
+# Capture screenshot
+flowdeck simulator screenshot "$UDID" --output ./artifacts/screenshot.png
+```

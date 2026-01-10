@@ -1,0 +1,298 @@
+---
+title: "Swift Packages"
+description: "Manage Swift Package Manager dependencies"
+---
+
+Commands for managing Swift Package Manager (SPM) dependencies in your Xcode project.
+
+## flowdeck project packages list
+
+List all Swift packages in your project, including direct dependencies and transitive (indirect) dependencies.
+
+```bash
+# List packages in the current project
+flowdeck project packages list -w MyApp.xcworkspace
+
+# List packages with JSON output
+flowdeck project packages list -w MyApp.xcworkspace --json
+
+# Verbose output
+flowdeck project packages list -w MyApp.xcworkspace --verbose
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--project <path>` | `-p` | Project directory (optional, defaults to current directory) |
+| `--json` | `-j` | Output JSON format for programmatic consumption |
+| `--verbose` | `-v` | Show detailed output |
+
+### Output
+
+**Human-readable output:**
+
+```
+Swift Packages (5 direct, 12 transitive)
+
+Direct Dependencies:
+  alamofire (5.9.1) - Up to Next Major from 5.0.0
+    https://github.com/Alamofire/Alamofire.git
+
+  swift-collections (1.1.0) - Up to Next Major from 1.0.0
+    https://github.com/apple/swift-collections.git
+
+Transitive Dependencies:
+  swift-argument-parser (1.5.0)
+  swift-syntax (510.0.2)
+```
+
+### JSON Output
+
+```json
+{
+  "directDependencies": [
+    {
+      "identity": "alamofire",
+      "url": "https://github.com/Alamofire/Alamofire.git",
+      "version": "5.9.1",
+      "versionRule": {
+        "type": "upToNextMajor",
+        "value": "5.0.0"
+      }
+    }
+  ],
+  "transitiveDependencies": [
+    {
+      "identity": "swift-argument-parser",
+      "version": "1.5.0"
+    }
+  ]
+}
+```
+
+---
+
+## flowdeck project packages add
+
+Add a new Swift package dependency to your project.
+
+```bash
+# Add with "Up to Next Major" version rule (most common)
+flowdeck project packages add https://github.com/Alamofire/Alamofire.git \
+  --kind upToNextMajor --value 5.0.0 -w MyApp.xcworkspace
+
+# Add with "Up to Next Minor" version rule
+flowdeck project packages add https://github.com/apple/swift-collections.git \
+  --kind upToNextMinor --value 1.0.0 -w MyApp.xcworkspace
+
+# Add exact version
+flowdeck project packages add https://github.com/user/repo.git \
+  --kind exact --value 2.3.4 -w MyApp.xcworkspace
+
+# Add specific branch
+flowdeck project packages add https://github.com/user/repo.git \
+  --kind branch --value main -w MyApp.xcworkspace
+
+# Add specific commit (revision)
+flowdeck project packages add https://github.com/user/repo.git \
+  --kind revision --value abc123def456 -w MyApp.xcworkspace
+```
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<url>` | Package repository URL (HTTPS or SSH) |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--kind <type>` | `-k` | Version rule type (required) |
+| `--value <version>` | `-V` | Version, branch name, or commit SHA (required) |
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--project <path>` | `-p` | Project directory (optional) |
+| `--json` | `-j` | Output JSON format |
+| `--verbose` | `-v` | Show detailed output |
+
+### Version Rule Types
+
+| Kind | Description | Example Value |
+|------|-------------|---------------|
+| `upToNextMajor` | Any version from X.0.0 up to (but not including) the next major version | `5.0.0` |
+| `upToNextMinor` | Any version from X.Y.0 up to (but not including) the next minor version | `1.2.0` |
+| `exact` | Exactly this version, no updates allowed | `2.3.4` |
+| `branch` | Track a specific branch (e.g., main, develop) | `main` |
+| `revision` | Lock to a specific commit SHA | `abc123def` |
+
+<Note>
+The `upToNextMajor` rule is recommended for most dependencies as it allows minor updates and patches while preventing breaking changes.
+</Note>
+
+### Supported URL Formats
+
+```bash
+# HTTPS (most common)
+https://github.com/Alamofire/Alamofire.git
+https://github.com/Alamofire/Alamofire  # .git suffix optional
+
+# SSH
+git@github.com:Alamofire/Alamofire.git
+
+# Enterprise GitHub
+https://github.mycompany.com/team/private-lib.git
+
+# GitLab, Bitbucket, etc.
+https://gitlab.com/user/repo.git
+https://bitbucket.org/user/repo.git
+```
+
+---
+
+## flowdeck project packages remove
+
+Remove a Swift package dependency from your project.
+
+```bash
+# Remove by package identity (lowercase name)
+flowdeck project packages remove alamofire -w MyApp.xcworkspace
+
+# Remove by URL
+flowdeck project packages remove https://github.com/Alamofire/Alamofire.git \
+  -w MyApp.xcworkspace
+
+# With JSON output
+flowdeck project packages remove swift-collections -w MyApp.xcworkspace --json
+```
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<package>` | Package identity (e.g., `alamofire`) or repository URL |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--project <path>` | `-p` | Project directory (optional) |
+| `--json` | `-j` | Output JSON format |
+| `--verbose` | `-v` | Show detailed output |
+
+### Package Identity
+
+The package identity is typically the lowercase repository name without the `.git` suffix:
+
+| Repository URL | Identity |
+|----------------|----------|
+| `https://github.com/Alamofire/Alamofire.git` | `alamofire` |
+| `https://github.com/apple/swift-collections.git` | `swift-collections` |
+| `git@github.com:user/MyPackage.git` | `mypackage` |
+
+<Tip>
+Use `flowdeck project packages list` to see all package identities in your project.
+</Tip>
+
+---
+
+## flowdeck project packages resolve
+
+Resolve package dependencies without updating to newer versions. This downloads packages according to the versions specified in `Package.resolved`.
+
+```bash
+# Resolve packages
+flowdeck project packages resolve -w MyApp.xcworkspace -s MyScheme
+
+# With custom derived data path
+flowdeck project packages resolve -w MyApp.xcworkspace -s MyScheme \
+  --derived-data-path /custom/DerivedData
+
+# JSON output
+flowdeck project packages resolve -w MyApp.xcworkspace -s MyScheme --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name (required) |
+| `--project <path>` | `-p` | Project directory (optional) |
+| `--derived-data-path <path>` | `-d` | Custom derived data path |
+| `--json` | `-j` | Output JSON format |
+| `--verbose` | `-v` | Show xcodebuild output |
+
+<Note>
+Use `resolve` after cloning a project or when `Package.resolved` has been updated by another team member.
+</Note>
+
+---
+
+## flowdeck project packages update
+
+Update all packages to the latest versions allowed by their version rules.
+
+```bash
+# Update all packages
+flowdeck project packages update -w MyApp.xcworkspace -s MyScheme
+
+# Verbose output (shows xcodebuild progress)
+flowdeck project packages update -w MyApp.xcworkspace -s MyScheme --verbose
+
+# JSON output
+flowdeck project packages update -w MyApp.xcworkspace -s MyScheme --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--scheme <name>` | `-s` | Scheme name (required) |
+| `--project <path>` | `-p` | Project directory (optional) |
+| `--derived-data-path <path>` | `-d` | Custom derived data path |
+| `--json` | `-j` | Output JSON format |
+| `--verbose` | `-v` | Show xcodebuild output |
+
+<Warning>
+`update` may fetch newer package versions which could introduce breaking changes. Use `resolve` if you only want to download the versions in `Package.resolved`.
+</Warning>
+
+---
+
+## flowdeck project packages clear
+
+Clear the Swift Package Manager cache. Use this when experiencing package resolution issues.
+
+```bash
+# Clear package cache
+flowdeck project packages clear -w MyApp.xcworkspace
+
+# Clear with custom derived data path
+flowdeck project packages clear -w MyApp.xcworkspace \
+  --derived-data-path /custom/DerivedData
+
+# JSON output
+flowdeck project packages clear -w MyApp.xcworkspace --json
+```
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--workspace <path>` | `-w` | Path to workspace (.xcworkspace) or project (.xcodeproj) |
+| `--project <path>` | `-p` | Project directory (optional) |
+| `--derived-data-path <path>` | `-d` | Custom derived data path |
+| `--json` | `-j` | Output JSON format |
+| `--verbose` | `-v` | Show detailed output |
+
+### When to Use
+
+Clear the package cache when:
+- Package resolution fails with cryptic errors
+- A package update seems stuck
+- Switching between branches with different package versions
+- After network issues during package resolution
