@@ -104,9 +104,14 @@
             ]
           },
           {
-            "group": "AI Agents",
+            "group": "AI Agent Integration",
             "pages": [
-              "cli/ai-agents"
+              "cli/ai-agents",
+              "cli/ai-agents/claude-code",
+              "cli/ai-agents/codex",
+              "cli/ai-agents/opencode",
+              "cli/ai-agents/cursor",
+              "cli/ai-agents/other-agents"
             ]
           },
           {

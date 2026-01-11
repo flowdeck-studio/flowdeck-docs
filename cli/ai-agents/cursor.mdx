@@ -1,0 +1,64 @@
+---
+title: "Cursor"
+description: "Add FlowDeck as a Cursor Agent Skill"
+---
+
+Cursor supports Agent Skills in the Nightly release channel. Skills are loaded from `.cursor/skills/<skill-name>/SKILL.md`. For more details, see the [Cursor skills docs](https://cursor.com/docs/context/skills).
+
+## What the Skill Does
+
+The FlowDeck skill teaches the agent to use FlowDeck for iOS/macOS build, run, test, and debug workflows instead of Apple CLI tools. It also standardizes project discovery and simulator management so the agent can operate with fewer retries.
+
+<Note>
+  Skills provide guidance, but they do not prevent the agent from sidetracking to xcodebuild or simctl.
+</Note>
+
+## Reinforce in AGENTS.md
+
+Cursor does not support hooks to prevent it from using Apple tools, so for better performance, it's recommended to include the following in your AGENTS.md file to instruct it to prefer the FlowDeck skill:
+
+```text
+Use the FlowDeck skill and CLI for all iOS/macOS build, run, test, and debug tasks.
+Do not use xcodebuild, xcrun simctl, or other Apple CLI tools unless FlowDeck is unavailable.
+If a FlowDeck command fails, troubleshoot using FlowDeck output and retry before falling back.
+```
+
+## Enable Nightly Channel
+
+1. Open **Cursor Settings** (Cmd+Shift+J on macOS, Ctrl+Shift+J on Windows/Linux).
+2. Select **Beta**.
+3. Set the update channel to **Nightly**.
+4. Restart Cursor after the update.
+
+## Install the Skill
+
+### Project Skill (Shared with the Repo)
+
+```bash
+mkdir -p .cursor/skills/flowdeck
+curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main/skills/flowdeck/SKILL.md -o .cursor/skills/flowdeck/SKILL.md
+```
+
+### System Skill (Applies to All Projects)
+
+```bash
+mkdir -p ~/.cursor/skills/flowdeck
+curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main/skills/flowdeck/SKILL.md -o ~/.cursor/skills/flowdeck/SKILL.md
+```
+
+<Note>
+  Cursor Nightly also reads Claude-compatible skills from <code>~/.claude/skills</code> if you already use that directory.
+</Note>
+
+<Note>
+  Agent Skills are only available in the Cursor Nightly release channel. If you don't want to switch to Nightly, follow the steps in [Other Agents](./other-agents) instead.
+</Note>
+
+## Example Prompts
+
+```text
+"Build and run my app on an iPhone 16 simulator"
+"Run the unit tests and fix any failures"
+"Take a screenshot of the current simulator state"
+"Run the app and check logs to understand why the login screen isn't working"
+```

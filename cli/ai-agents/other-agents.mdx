@@ -1,0 +1,65 @@
+---
+title: "Other Agents"
+description: "Add the FlowDeck skill to agents that support project rules"
+---
+
+For AI coding assistants like Windsurf, Cline, Copilot, or others, you can add the skill as a reference in AGENTS.md.
+
+<Note>
+  The Claude Code plugin includes a hook that actively blocks attempts to use xcodebuild/simctl, ensuring the agent always uses FlowDeck. Other agents receive the skill instructions but may occasionally fall back to Apple's tools.
+</Note>
+
+## What the Skill Does
+
+The FlowDeck skill teaches the agent to use FlowDeck for iOS/macOS build, run, test, and debug workflows instead of Apple CLI tools. It also standardizes project discovery and simulator management so the agent can operate with fewer retries.
+
+<Note>
+  Skills provide guidance, but they do not prevent the agent from sidetracking to xcodebuild or simctl.
+</Note>
+
+## Reinforce in AGENTS.md
+
+These agents do not support hooks to prevent them from using Apple tools, so for better performance, it's recommended to include the following in your AGENTS.md file to instruct them to prefer the FlowDeck skill:
+
+```text
+Use the FlowDeck skill and CLI for all iOS/macOS build, run, test, and debug tasks.
+Do not use xcodebuild, xcrun simctl, or other Apple CLI tools unless FlowDeck is unavailable.
+If a FlowDeck command fails, troubleshoot using FlowDeck output and retry before falling back.
+```
+
+## Project vs System Skill
+
+### Project Skill (Recommended)
+
+Download the skill and reference it from your repo rules file.
+
+```bash
+curl -sSL https://raw.githubusercontent.com/flowdeck-studio/flowdeck-plugin/main/skills/flowdeck/SKILL.md -o FLOWDECK.md
+```
+
+Add to your project rules:
+
+**For most agents** (AGENTS.md or similar):
+
+```yaml
+@import FLOWDECK.md
+```
+
+**For Windsurf** (.windsurfrules):
+
+```markdown
+@import FLOWDECK.md
+```
+
+### System Skill (If Your Agent Supports Global Rules)
+
+If your agent supports user-level rules, add the same import to its global rules file so the skill applies to all projects. The file name and location vary by agent.
+
+## Example Prompts
+
+```text
+"Build and run my app on an iPhone 16 simulator"
+"Run the unit tests and fix any failures"
+"Take a screenshot of the current simulator state"
+"Run the app and check logs to understand why the login screen isn't working"
+```
