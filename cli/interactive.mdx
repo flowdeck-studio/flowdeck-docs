@@ -62,7 +62,6 @@ The bottom of the terminal displays a persistent status bar showing:
 | --- | ------------------------------------------------------- |
 | `D` | Devices, Simulators & Runtimes menu                     |
 | `F` | FlowDeck settings                                       |
-| `W` | Export config (shows explanation, then saves)           |
 
 ### Navigation
 
@@ -96,6 +95,7 @@ When you press `P`, the Project Commands menu appears with the following options
 | ------ | ------ |
 | **Swift Packages** | Opens a submenu with package management options |
 | **Sync Provisioning Profiles** | Syncs provisioning profiles via build with automatic signing |
+| **Export Project Config** | Export current configuration to a file for use with CLI commands |
 | **Open in Xcode** | Opens the current workspace in Xcode |
 
 ### Swift Packages Submenu
@@ -164,7 +164,7 @@ This state persists across sessions, so you can quit and resume without reconfig
 
 ## Saving Configuration to a file
 
-You can store your current configuration, use the `W` shortcut to use it via CLI commands.
+You can store your current configuration by selecting **Export Project Config** from the Project Commands menu (press `P`, then select **Export Project Config**). This allows you to use the configuration with CLI commands.
 
 You can directly run commands with a pre-defined configuration by passing the `--config` option
 
